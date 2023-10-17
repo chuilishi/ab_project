@@ -1,16 +1,16 @@
 package main
 
-import "fmt"
-
 type User struct {
 	name string
 	Age  string
 	id   int
 }
 
+func (u User) AddName(a int) {
+	u.id = a
+}
 func main() {
-	//u:=User{}
-	fmt.Println("Hello world")
-	fmt.Println("nihao")
-	println("hah")
+	var user1 User
+	user1.name = "John"
+	println(user1.name)
 }
