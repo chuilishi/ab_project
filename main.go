@@ -1,17 +1,13 @@
 package main
 
-import "fmt"
-
-type User struct {
-	name string
-	Age  string
-	Id   int
-}
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	//u:=User{}
-	fmt.Println("Hello world")
+	r := gin.Default()
 	fmt.Println("nihao")
-	println("hah")
 
+	r.Run("8080")
 }
