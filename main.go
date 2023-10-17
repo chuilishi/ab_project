@@ -8,6 +8,5 @@ import (
 func main() {
 	r := gin.Default()
 	fmt.Println("nihao")
-
-	r.Run("8080")
+	r.Run(":8080")
 }
