@@ -4,7 +4,7 @@ import "fmt"
 
 type User struct {
 	name string
-	age  int
+	Age  int
 	Id   int
 }
 
