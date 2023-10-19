@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"github.com/gin-gonic/gin"
+	"ab_project/mysqlDB"
+	"ab_project/router"
 )
 
 func main() {
-	r := gin.Default()
-	fmt.Println("nihao")
+	mysqlDB.InitGrom()
+	r := router.GetRouter()
 	r.Run(":8080")
 }
