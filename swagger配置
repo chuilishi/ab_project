@@ -1,1 +1,1 @@
- swag init --parseDependency --parseInternal
+ swag init  -g router/router.go --parseDependency --parseInternal 2

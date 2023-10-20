@@ -1,6 +1,7 @@
 package router
 
 import (
+	_ "ab_project/docs"
 	"ab_project/service"
 	"github.com/gin-gonic/gin"
 	swagger "github.com/swaggo/files"
@@ -8,6 +9,11 @@ import (
 )
 
 // GetRouter 返回集成router
+//
+//	@title			AB迎新系统接口文档
+//	@version		1.0
+//	@description	接口文档
+//	@host			123.207.73.185:8080
 func GetRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(Cors())
