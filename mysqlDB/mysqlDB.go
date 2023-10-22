@@ -45,15 +45,11 @@ func IsUserHave(username string) error {
 }
 
 // RegisterUserByUsername 实现用户注册（仅注册账号与密码）
-func RegisterUserByUsername(username, password string) error {
-	err := IsUserHave(username)
+func RegisterUserByUsername(user *model.User) error {
+	err := IsUserHave(user.UserName)
 	if err == nil {
 		return errors.New("用户已存在")
 	}
-	user := new(model.User)
-	user.UserName = username
-	user.PassWord = password
-	dberr := DB.Create(&user)
-	fmt.Println(dberr.Error)
+	dberr := DB.Create(user)
 	return dberr.Error
 }
