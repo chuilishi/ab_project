@@ -49,20 +49,7 @@ func LoginUser(c *gin.Context) {
 //	@Router			/register [get]
 func RegisterUser(c *gin.Context) {
 	var user = new(model.User)
-	//user.UserName = c.PostForm("username")
-	//user.PassWord = c.PostForm("password")
-	//user.Age, _ = strconv.Atoi(c.PostForm("age"))
-	//user.Sex = c.PostForm("sex")
-	//user.WxOpenId = c.PostForm("wxOpenId")
-	//user.WxUnionId = c.PostForm("wxUnionId")
 	c.BindJSON(user)
-	fmt.Println(user.UserName)
-	fmt.Println(user.PassWord)
-	fmt.Println(user.Age)
-	fmt.Println(user.Sex)
-	fmt.Println(user.WxUnionId)
-	fmt.Println(user.WxOpenId)
-
 	err := mysqlDB.RegisterUserByUsername(user)
 	fmt.Println(err)
 	if err != nil {

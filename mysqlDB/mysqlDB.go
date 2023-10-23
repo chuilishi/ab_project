@@ -17,9 +17,20 @@ func InitGrom() {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println("无法连接数据库！", err)
+		panic("无法连接数据库！")
 		return
 	}
 	err = db.AutoMigrate(&model.User{})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = db.AutoMigrate(&model.Manager{})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = db.AutoMigrate(&model.Information{})
 	if err != nil {
 		fmt.Println(err)
 		return
