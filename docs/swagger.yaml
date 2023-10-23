@@ -30,6 +30,15 @@ definitions:
       wxUnionId:
         type: string
     type: object
+  service.Response:
+    properties:
+      code:
+        description: 相应码，错误为0，正确为1
+        type: integer
+      msg:
+        description: 信息，错误为具体信息，正确为空
+        type: string
+    type: object
 host: 123.207.73.185:8080
 info:
   contact: {}
@@ -57,13 +66,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: 用户结构体json
           schema:
             $ref: '#/definitions/people.User'
         "400":
-          description: '{"code":0,"msg": "查无此人"}'
+          description: 错误信息
           schema:
-            type: string}json
+            $ref: '#/definitions/service.Response'
       summary: 用户登录请求
       tags:
       - 用户服务
@@ -87,13 +96,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code":0,"msg": "注册成功"}'
+          description: 正确信息
           schema:
-            type: string
+            $ref: '#/definitions/service.Response'
         "400":
-          description: '{"code":0,"msg": "注册失败"}'
+          description: 错误信息
           schema:
-            type: string
+            $ref: '#/definitions/service.Response'
       summary: 用户注册请求
       tags:
       - 用户服务

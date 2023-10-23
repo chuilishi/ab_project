@@ -46,15 +46,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "用户结构体json",
                         "schema": {
-                            "$ref": "#/definitions/people.User"
+                            "$ref": "#/definitions/model.User"
                         }
                     },
                     "400": {
-                        "description": "{\"code\":0,\"msg\": \"查无此人\"}",
+                        "description": "错误信息",
                         "schema": {
-                            "type": "string}json"
+                            "$ref": "#/definitions/service.Response"
                         }
                     }
                 }
@@ -91,15 +91,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\":0,\"msg\": \"注册成功\"}",
+                        "description": "正确信息",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/service.Response"
                         }
                     },
                     "400": {
-                        "description": "{\"code\":0,\"msg\": \"注册失败\"}",
+                        "description": "错误信息",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/service.Response"
                         }
                     }
                 }
@@ -119,7 +119,7 @@ const docTemplate = `{
                 }
             }
         },
-        "people.User": {
+        "model.User": {
             "type": "object",
             "properties": {
                 "age": {
@@ -150,6 +150,19 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "wxUnionId": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "相应码，错误为0，正确为1",
+                    "type": "integer"
+                },
+                "msg": {
+                    "description": "信息，错误为具体信息，正确为空",
                     "type": "string"
                 }
             }
