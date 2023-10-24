@@ -1,13 +1,13 @@
 package wechat
 
 import (
-	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -34,6 +34,7 @@ type EventBody struct {
 	*/
 }
 
+// ticket对应的openid管道
 var ticketToOpenId = make(map[string]chan string)
 
 // 回复用户的数据
@@ -53,6 +54,7 @@ func openidHandler(c *gin.Context) {
 	if exist {
 		openid := <-openidChan
 		c.String(http.StatusOK, openid)
+		delete(ticketToOpenId, c.Query("ticket"))
 	} else {
 		c.String(http.StatusOK, "") //一直都没扫返回空字符串
 	}
@@ -61,35 +63,27 @@ func openidHandler(c *gin.Context) {
 // 请求qrcode之后返回一个json
 func qrcodeHandler(c *gin.Context) {
 	url := "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=" + access_token
-	postdata := map[string]interface{}{
-		"action_name": "QR_LIMIT_SCENE",
-		"action_info": map[string]interface{}{
-			"scene": map[string]string{"scene_id": "123"},
-		},
-	}
-	jsondata := ``
-	if err != nil {
-		return
-	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsondata))
+	jsondata := `{
+        "action_name": "QR_LIMIT_SCENE",
+        "action_info": {
+            "scene": {"scene_id": 123}
+        }
+    }`
+	resp, err := http.Post(url, "application/json", strings.NewReader(jsondata))
 	if err != nil {
 		return
 	}
 	all, err := io.ReadAll(resp.Body)
-
-	//if err != nil {
-	//	return
-	//}
-	//respjson := map[string]interface{}{}
-	//err = json.Unmarshal(all, &respjson)
-	//if err != nil {
-	//	return
-	//}
-	//ticketToOpenId[respjson["ticket"].(string)] <- respjson["FromUserName"].(string)
-	//c.JSON(http.StatusOK, map[string]string{
-	//	"url":    "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + respjson["ticket"].(string),
-	//	"ticket": respjson["ticket"].(string),
-	//})
+	if err != nil {
+		return
+	}
+	respjson := make(map[string]interface{})
+	json.Unmarshal(all, &respjson)
+	ticketToOpenId[respjson["ticket"].(string)] = make(chan string)
+	c.JSON(http.StatusOK, map[string]string{
+		"url":    "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + respjson["ticket"].(string),
+		"ticket": respjson["ticket"].(string),
+	})
 }
 func Wechat() {
 	go GetAccessToken()
@@ -122,13 +116,24 @@ func Wechat() {
 			case "subscribe":
 				Reply(c, "achobeta,启动!")
 				if eventBody.Ticket != "" { //登录事件
-
+					ch, exist := ticketToOpenId[eventBody.Ticket]
+					if !exist {
+						ticketToOpenId[eventBody.Ticket] = make(chan string)
+					}
+					ch <- eventBody.Openid
 				}
 				break
 			case "unsubscribe":
 				break
 			case "SCAN":
 				Reply(c, "欢迎回来")
+				if eventBody.Ticket != "" { //登录事件
+					ch, exist := ticketToOpenId[eventBody.Ticket]
+					if !exist {
+						ticketToOpenId[eventBody.Ticket] = make(chan string)
+					}
+					ch <- eventBody.Openid
+				}
 				break
 			}
 			break
