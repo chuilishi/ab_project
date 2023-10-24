@@ -1,6 +1,7 @@
 package service
 
 import (
+	"ab_project/model"
 	"ab_project/mysqlDB"
 	"encoding/json"
 	"fmt"
@@ -17,7 +18,7 @@ import (
 //	@Param			username	query		string		true	"用户id"
 //	@Param			password	query		string		true	"用户密码"
 //	@Success		200			{object}	model.User	"用户结构体json"
-//	@Failure		400			{object}	Response	"错误信息"
+//	@Failure		400			{object}	Response 	"错误信息"
 //	@Router			/login [get]
 func LoginUser(c *gin.Context) {
 	username := c.Query("username")
@@ -45,21 +46,21 @@ func LoginUser(c *gin.Context) {
 //	@Param			password	query	string	true	"用户密码"
 //	@Success		200			{object}	Response	"正确信息"
 //	@Failure		400			{object}	Response	"错误信息"
-//	@Router			/login/register [get]
+//	@Router			/register [get]
 func RegisterUser(c *gin.Context) {
-	username := c.Query("username")
-	password := c.Query("password")
-	err := mysqlDB.RegisterUserByUsername(username, password)
+	var user = new(model.User)
+	c.BindJSON(user)
+	err := mysqlDB.RegisterUserByUsername(user)
 	fmt.Println(err)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"code":    0,
-			"message": "注册失败",
+			"message": err.Error(),
 		})
 		return
 	}
 	c.JSON(200, gin.H{
-		"code":    0,
+		"code":    1,
 		"message": "注册成功",
 	})
 	return

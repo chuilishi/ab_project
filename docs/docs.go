@@ -52,15 +52,15 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "错误信息",
+                        "description": "用户不存在\"}\t\"错误信息",
                         "schema": {
-                            "$ref": "#/definitions/service.Response"
+                            "type": "Response"
                         }
                     }
                 }
             }
         },
-        "/login/register": {
+        "/register": {
             "get": {
                 "description": "用户注册请求",
                 "consumes": [
