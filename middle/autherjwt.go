@@ -1,7 +1,9 @@
 package middle
 
 import (
+	"ab_project/global"
 	"ab_project/service/response"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,10 +13,17 @@ func JWTCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		y := c.Request.Header.Get("jwt-code")
 		if y == "" {
-			response.FailWithDetailed(gin.H{"reload": true}, "未登录或者非法访问", c)
+			response.FailWithDetailed(gin.H{"reload": true}, "用户未登录", c)
 			c.Abort()
 		}
+		_, err := jwt.Parse(y, func(token *jwt.Token) (interface{}, error) {
+			return []byte(global.JWTKey), nil
+		})
+		if err != nil {
+			c.Next()
+		} else {
+			response.FailWithDetailed(gin.H{"reload": true}, "用户登录过期", c)
+		}
 
-		c.Next()
 	}
 }
