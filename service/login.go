@@ -69,22 +69,11 @@ func RegisterUser(c *gin.Context) {
 	return
 
 }
-func Exit(c *gin.Context) {
+func Exist(c *gin.Context) {
 
 }
 
 // Register 用户注册实现
-//
-//	@Summary		用户注册请求
-//	@Description	用户注册请求
-//	@Tags			用户服务
-//	@Accept			json
-//	@Produce		json
-//	@Param			username	query	string	true	"用户id"
-//	@Param			password	query	string	true	"用户密码"
-//	@Success		200			{object}	Response	"正确信息"
-//	@Failure		400			{object}	Response	"错误信息"
-//	@Router			/register [get]
 func Register(c *gin.Context) {
 	user := &model.User{}
 	err := c.ShouldBind(user)
@@ -93,14 +82,14 @@ func Register(c *gin.Context) {
 		response.FailWithMessage("简历投递失败", c)
 		return
 	}
-
 	fmt.Println(user)
 	token, err := GiveJWT()
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("jwt生成失败" + err.Error())
 		return
 	}
-	err = mysqlDB.RegisterUser(user)
+
+	us, err := mysqlDB.RegisterUser(user)
 	if err != nil {
 		fmt.Println(err)
 		response.FailWithMessage("用户注册失败"+err.Error(), c)

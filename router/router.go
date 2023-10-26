@@ -17,7 +17,7 @@ import (
 //	@host			123.207.73.185:8080
 func GetRouter() *gin.Engine {
 	r := gin.Default()
-	r.GET("/isUserExit", service.Exit)
+	r.GET("/isUserExist", service.Exist)
 	r.POST("/register", service.Register)
 	r.Use(middle.Cors()).Use(middle.JWTCheck())
 	r.GET("/login", service.RegisterUser)

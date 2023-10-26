@@ -3,7 +3,6 @@ package mysqlDB
 import (
 	"ab_project/global"
 	"ab_project/model"
-	"errors"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
