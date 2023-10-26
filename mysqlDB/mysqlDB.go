@@ -35,41 +35,17 @@ func InitGrom() {
 
 // FindUserByUsernamePassword 用户实现用户登录功能，返回用户结构体
 func FindUserByUsernamePassword(username, password string) (*model.User, error) {
-	ret := new(model.User)
-	err := DB.Where("userName =? AND passWord = ? ", username, password).First(ret).Error
-	return ret, err
+
 }
 
-// IsUserHave 通过用户名查找用户是否存在
+// IsUserHave 通过WxOpenId查找用户是否存在
 func IsUserHave(WxOpenId string) error {
 	user := new(model.User)
-	err := DB.Where("wxopenid = ?&&ok = 0", WxOpenId).First(&user).Error
-	if err != nil {
-		return err
-	}
-	return nil
+	err := DB.Where("wxopenid = ?", WxOpenId).First(user).Error
+	return err
 }
 
-// IsUserOK 通过用户名查找用户是否存在
-func IsUserOK(WxOpenId string) error {
-	user := new(model.User)
-	err := DB.Where("wxopenid = ? &&ok = 0", WxOpenId).First(&user).Error
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// RegisterUser 实现用户注册
+func RegisterUser(user *model.User) (*model.User, error) {
 
-// RegisterUser 实现用户注册（仅注册账号与密码）
-func RegisterUser(user *model.User) error {
-	err := IsUserHave(user.WxOpenId)
-	if err == nil {
-		return errors.New("用户已存在")
-	}
-	err = IsUserOK(user.WxOpenId)
-	if err == nil {
-		return errors.New("用户已经提交简历")
-	}
-	dberr := DB.Create(user)
-	return dberr.Error
 }
