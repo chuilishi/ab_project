@@ -30,11 +30,7 @@ func InitGrom() {
 		fmt.Println(err)
 		return
 	}
-	err = db.AutoMigrate(&model.Information{})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+
 	DB = db
 }
 
