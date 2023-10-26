@@ -1,6 +1,7 @@
 package wechat
 
 import (
+	"ab_project/middle"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-var myOpenId string = "oQQWt53FZT7A8pmqb7KVhLt68AOo"
+var myOpenId string = "gh_e7a9f5071ab9"
 var usrOpenId string = "oQQWt53FZT7A8pmqb7KVhLt68AOo"
 var appid string = "wx8ba1b60caf51ed26"
 var secret string = "e1a9d9c66d49b7425ab0ec7d90635f4c"
@@ -19,14 +20,14 @@ var access_token string = "73_povW6cXWc6rITF10Pk53AfYAUj09bXvNcJdcqoy01jOgv5TddZ
 
 // EventBody 微信所有事件(关注,消息等)的结构体
 type EventBody struct {
-	ToUserName string `xml:"ToUserName"`
-	Openid     string `xml:"FromUserName"` //关注者
-	MsgType    string `xml:"MsgType"`      //关注事件的话这一条的值是event
-	Content    string `xml:"Content"`
-	Event      string `xml:"Event"`    //可能的值 subscribe unsubscribe 等等
-	EventKey   string `xml:"EventKey"` //二维码携带的场景值
-	CreateTime string `xml:"CreateTime"`
-	Ticket     string `xml:"Ticket"` //二维码对应ticket
+	FromUserName string `xml:"ToUserName"` //用户
+	Openid       string `xml:"FromUserName"`
+	MsgType      string `xml:"MsgType"` //关注事件的话这一条的值是event
+	Content      string `xml:"Content"`
+	Event        string `xml:"Event"`    //可能的值 subscribe unsubscribe 等等
+	EventKey     string `xml:"EventKey"` //二维码携带的场景值
+	CreateTime   string `xml:"CreateTime"`
+	Ticket       string `xml:"Ticket"` //二维码对应ticket
 	/*
 		timestamp := int64(CreateTime)
 		t := time.Unix(timestamp, 0)
@@ -54,9 +55,10 @@ func openidHandler(c *gin.Context) {
 	if exist {
 		openid := <-openidChan
 		c.String(http.StatusOK, openid)
+		println("#####成功#####")
 		delete(ticketToOpenId, c.Query("ticket"))
 	} else {
-		c.String(http.StatusOK, "") //一直都没扫返回空字符串
+		c.String(http.StatusOK, "无效") //一直都没扫返回空字符串
 	}
 }
 
@@ -88,6 +90,7 @@ func qrcodeHandler(c *gin.Context) {
 func Wechat() {
 	go GetAccessToken()
 	r := gin.Default()
+	r.Use(middle.Cors())
 	r.GET("/")
 	r.GET("/qrcode", qrcodeHandler)
 	r.GET("/openid", openidHandler)
@@ -107,14 +110,15 @@ func Wechat() {
 		} else {
 			println("绑定成功")
 		}
-		if eventBody.ToUserName == "" {
+		if eventBody.Openid == "" {
 			return
 		} //不是微信方发来的消息退出
 		switch eventBody.MsgType {
 		case "event":
 			switch eventBody.Event {
 			case "subscribe":
-				Reply(c, "achobeta,启动!")
+				println("有人关注")
+				Reply(c, "achobeta,启动!", eventBody.Openid)
 				if eventBody.Ticket != "" { //登录事件
 					ch, exist := ticketToOpenId[eventBody.Ticket]
 					if !exist {
@@ -126,7 +130,8 @@ func Wechat() {
 			case "unsubscribe":
 				break
 			case "SCAN":
-				Reply(c, "欢迎回来")
+				println("有人扫二维码")
+				Reply(c, "欢迎回来", eventBody.Openid)
 				if eventBody.Ticket != "" { //登录事件
 					ch, exist := ticketToOpenId[eventBody.Ticket]
 					if !exist {
@@ -138,7 +143,8 @@ func Wechat() {
 			}
 			break
 		case "text":
-			Reply(c, "为什么你要发送"+eventBody.Content)
+			println("发送的是消息")
+			Reply(c, eventBody.Content+"当然是正确的,"+"你说的对，但是一小时有60分钟，一分钟有60秒，3600个一秒可以组成一小时。这些你都知道。你甚至知道，地球是圆的，太阳不是宇宙的中心，银河系也不是宇宙唯一的星系。如此高深的知识，你都知道。可是你不知道，每一秒，每一分钟我都在想着你。我打开手机，打开ipad，第一眼看到的就是你。可你不知道。你上知天文，下知地理，通晓时空。可你不知道我对你的心。一年有31536000秒，这你一定知道。你不知道的是，每一秒我心里都有你的位置。你知道宇宙的中心不是太阳，却又万万不知道在我心里，宇宙的中心是你。你知道整个世界，可你不知道我对你的心意!!!", eventBody.Openid)
 			break
 		}
 	})
@@ -150,10 +156,10 @@ func Wechat() {
 }
 
 // 回复
-func Reply(c *gin.Context, message string) {
+func Reply(c *gin.Context, message string, openid string) {
 	rxml := responseXML{
-		ToUserName:   myOpenId,
-		FromUserName: usrOpenId,
+		ToUserName:   openid,
+		FromUserName: myOpenId,
 		MsgType:      "text",
 		CreateTime:   time.Now().Unix(),
 		Content:      message,
