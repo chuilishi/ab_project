@@ -17,9 +17,12 @@ import (
 //	@host			123.207.73.185:8080
 func GetRouter() *gin.Engine {
 	r := gin.Default()
+	r.GET("/login", service.RegisterUser)
+	r.POST("/delivery", service.Delivery)
 	r.Use(middle.Cors()).Use(middle.JWTCheck())
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
-	r.GET("/login", service.LoginUser)
-	r.POST("/register", service.RegisterUser)
+	//r.GET("/login", service.LoginUser)
+	//r.POST("/register", service.RegisterUser)
 	return r
 }
