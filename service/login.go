@@ -83,12 +83,9 @@ func RegisterUser(c *gin.Context) {
 //	@Router			/register [get]
 func Delivery(c *gin.Context) {
 	var user = new(model.User)
-	var information = new(model.Information)
 	c.ShouldBind(user)
-	c.ShouldBind(information)
 
 	fmt.Println(user)
-	fmt.Println(information)
 	_, err := GiveJWT()
 	//fmt.Println(token, err)
 	if err != nil {
