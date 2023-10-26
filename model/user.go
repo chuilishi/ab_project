@@ -12,7 +12,7 @@ type User struct {
 	Phone        string `gorm:"column:phone;type:varchar(11);" json:"phone"`                    //电话号
 	WxId         string `gorm:"column:wxid;type:varchar(30);" json:"wxid"`                      //微信号
 	Direction    string `gorm:"column:direction;type:varchar(6);" json:"direction"`             //方向
-	WxOpenId     string `gorm:"column:wxoenid;type:varchar(50);" json:"wxopenid"`               //微信openid
+	WxOpenId     string `gorm:"column:wxopenid;type:varchar(50);" json:"wxopenid"`              //微信openid
 	Status       string `gorm:"column:status;type:varchar(10);" json:"status"`                  //面试状态
 	Personalid   string `gorm:"column:personalid;type:varchar(13);" json:"personalid"`          //唯一id
 	Information1 string `gorm:"column:information1;type:varchar(300);" json:"information1"`     //个人信息1

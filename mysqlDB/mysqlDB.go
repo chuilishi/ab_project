@@ -34,18 +34,22 @@ func InitGrom() {
 }
 
 // FindUserByUsernamePassword 用户实现用户登录功能，返回用户结构体
-func FindUserByUsernamePassword(username, password string) (*model.User, error) {
-
-}
+//func FindUserByUsernamePassword(username, password string) (*model.User, error) {
+//
+//}
 
 // IsUserHave 通过WxOpenId查找用户是否存在
-func IsUserHave(WxOpenId string) error {
+func IsUserHave(WxOpenId string) *model.User {
 	user := new(model.User)
-	err := DB.Where("wxopenid = ?", WxOpenId).First(user).Error
-	return err
+	DB.Where("wxopenid = ?", WxOpenId).First(user)
+	return user
 }
 
-// RegisterUser 实现用户注册
-func RegisterUser(user *model.User) (*model.User, error) {
-
+// RegisterUser 实现用户简历投递
+func RegisterUser(user *model.User) error {
+	tempuser := IsUserHave(user.WxOpenId)
+	if tempuser.ID == 0 {
+		return DB.Create(user).Error
+	}
+	return DB.Updates(user).Error
 }
