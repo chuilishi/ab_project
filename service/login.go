@@ -3,6 +3,7 @@ package service
 import (
 	"ab_project/model"
 	"ab_project/mysqlDB"
+	"ab_project/service/response"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -68,8 +69,11 @@ func RegisterUser(c *gin.Context) {
 	return
 
 }
+func Exit(c *gin.Context) {
 
-// Delivery 用户注册实现
+}
+
+// Register 用户注册实现
 //
 //	@Summary		用户注册请求
 //	@Description	用户注册请求
@@ -81,16 +85,27 @@ func RegisterUser(c *gin.Context) {
 //	@Success		200			{object}	Response	"正确信息"
 //	@Failure		400			{object}	Response	"错误信息"
 //	@Router			/register [get]
-func Delivery(c *gin.Context) {
-	var user = new(model.User)
-	c.ShouldBind(user)
+func Register(c *gin.Context) {
+	user := &model.User{}
+	err := c.ShouldBind(user)
+	if err != nil {
+		fmt.Println(err)
+		response.FailWithMessage("简历投递失败", c)
+		return
+	}
 
 	fmt.Println(user)
-	_, err := GiveJWT()
-	//fmt.Println(token, err)
+	token, err := GiveJWT()
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
+	err = mysqlDB.RegisterUser(user)
+	if err != nil {
+		fmt.Println(err)
+		response.FailWithMessage("用户注册失败"+err.Error(), c)
+		return
+	}
+	c.String(200, token)
 	return
-
 }
