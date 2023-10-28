@@ -21,5 +21,6 @@ func GetRouter() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
 	r.GET("/login", service.LoginUser)
 	r.POST("/register", service.RegisterUser)
+	r.POST("/upload", service.Upload)
 	return r
 }
