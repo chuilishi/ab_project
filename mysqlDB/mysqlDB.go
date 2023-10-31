@@ -33,11 +33,6 @@ func InitGrom() {
 	DB = db
 }
 
-// FindUserByUsernamePassword 用户实现用户登录功能，返回用户结构体
-//func FindUserByUsernamePassword(username, password string) (*model.User, error) {
-//
-//}
-
 // IsUserHave 通过WxOpenId查找用户是否存在
 func IsUserHave(WxOpenId string) *model.User {
 	user := new(model.User)
@@ -49,7 +44,29 @@ func IsUserHave(WxOpenId string) *model.User {
 func RegisterUser(user *model.User) error {
 	tempuser := IsUserHave(user.WxOpenId)
 	if tempuser.ID == 0 {
+
 		return DB.Create(user).Error
 	}
 	return DB.Updates(user).Error
+}
+
+// 实现返回指定方向用户信息
+func FindUsersByDirection(direction string) []model.User {
+	var users []model.User
+	if direction == "全部" {
+		DB.Find(&users)
+
+	} else {
+		DB.Where("direction = ?", direction).Find(&users)
+	}
+	return users
+}
+
+// FindUsersByStatus 实现返回指定状态用户信息
+func FindUsersByStatus(direction string) []model.User {
+	var users []model.User
+
+	DB.Where("status = ?", direction).Find(&users)
+
+	return users
 }
