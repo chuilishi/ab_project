@@ -1,8 +1,7 @@
-<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="ab_project@123.207.73.185" uuid="4c447e16-f299-41da-a213-68469e27c9d5">
+    <data-source source="LOCAL" name="ab_project@123.207.73.185" uuid="f188d97d-0b83-4be9-8fca-1f49cfae154f">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
@@ -10,24 +9,4 @@
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
-=======
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="ab_project@localhost" uuid="63c962a4-04bf-490d-9f31-43a991772ca4">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/ab_project</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="ab_project@123.207.73.185" uuid="d4e2c08b-f0c8-470e-a42a-81d076693b51">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://123.207.73.185:3306/ab_project</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-  </component>
->>>>>>> main
 </project>

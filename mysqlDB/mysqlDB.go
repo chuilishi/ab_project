@@ -3,7 +3,6 @@ package mysqlDB
 import (
 	"ab_project/global"
 	"ab_project/model"
-	"errors"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -30,37 +29,27 @@ func InitGrom() {
 		fmt.Println(err)
 		return
 	}
-	err = db.AutoMigrate(&model.Information{})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+
 	DB = db
 }
 
 // FindUserByUsernamePassword 用户实现用户登录功能，返回用户结构体
-func FindUserByUsernamePassword(username, password string) (*model.User, error) {
-	ret := new(model.User)
-	err := DB.Where("userName =? AND passWord = ? ", username, password).First(ret).Error
-	return ret, err
-}
+//func FindUserByUsernamePassword(username, password string) (*model.User, error) {
+//
+//}
 
-// IsUserHave 通过用户名查找用户是否存在
-func IsUserHave(username string) error {
+// IsUserHave 通过WxOpenId查找用户是否存在
+func IsUserHave(WxOpenId string) *model.User {
 	user := new(model.User)
-	err := DB.Where("userName = ?", username).First(&user).Error
-	if err != nil {
-		return err
-	}
-	return nil
+	DB.Where("wxopenid = ?", WxOpenId).First(user)
+	return user
 }
 
-// RegisterUserByUsername 实现用户注册（仅注册账号与密码）
-func RegisterUserByUsername(user *model.User) error {
-	err := IsUserHave(user.UserName)
-	if err == nil {
-		return errors.New("用户已存在")
+// RegisterUser 实现用户简历投递
+func RegisterUser(user *model.User) error {
+	tempuser := IsUserHave(user.WxOpenId)
+	if tempuser.ID == 0 {
+		return DB.Create(user).Error
 	}
-	dberr := DB.Create(user)
-	return dberr.Error
+	return DB.Updates(user).Error
 }
