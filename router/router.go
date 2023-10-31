@@ -22,6 +22,8 @@ func GetRouter() *gin.Engine {
 	r.GET("/isUserExist", service.IsUserExist)
 	r.GET("/userDirection", service.FindUsersByDirection)
 	r.POST("/postUserMessage", service.PostUserMessage)
+	r.POST("/createUserMessage", service.PostUserMessage)
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
 	return r
 }
