@@ -61,3 +61,12 @@ func FindUsersByDirection(direction string) []model.User {
 	}
 	return users
 }
+
+// FindUsersByStatus 实现返回指定状态用户信息
+func FindUsersByStatus(direction string) []model.User {
+	var users []model.User
+
+	DB.Where("status = ?", direction).Find(&users)
+
+	return users
+}
