@@ -1,1 +1,8 @@
 ab_project
+.idea/
+*.py
+*.png
+main
+.gitignore
+zone4_3_3.ogg
+*.json

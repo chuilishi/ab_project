@@ -23,6 +23,5 @@ func GetRouter() *gin.Engine {
 	r.GET("/userDirection", service.FindUsersByDirection)
 	r.POST("/postUserMessage", service.PostUserMessage)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
-
 	return r
 }
