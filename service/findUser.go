@@ -19,7 +19,6 @@ func FindUsersByDirection(c *gin.Context) {
 func FindUsersByStatus(c *gin.Context) {
 	status := c.Query("status")
 	users := mysqlDB.FindUsersByStatus(status)
-
 	response.OkWithDetailed(users, status, c)
 
 }

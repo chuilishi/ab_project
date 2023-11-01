@@ -167,16 +167,6 @@ func Reply(c *gin.Context, message string, openid string) {
 	c.XML(http.StatusOK, rxml)
 }
 
-//	func TextHandler(c *gin.Context) {
-//		rxml := responseXML{
-//			ToUserName:   myOpenId,
-//			FromUserName: usrOpenId,
-//			MsgType:      "text",
-//			CreateTime:   time.Now().Unix(),
-//			Content:      ,
-//		}
-//		c.XML(http.StatusOK, rxml)
-//	}
 func GetAccessToken() {
 	for {
 		get, err := http.Get(fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", appid, secret))
