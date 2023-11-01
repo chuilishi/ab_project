@@ -2,8 +2,8 @@ package main
 
 import (
 	_ "ab_project/docs"
+	"ab_project/model"
 	"ab_project/wechat"
-	"io"
 )
 
 //	func main() {
@@ -13,17 +13,18 @@ import (
 //		//wechat.Wechat()
 //	}
 func main() {
-	////8<<20 即 8*2^20=8M
-	//r.MaxMultipartMemory = 8 << 20
-	//r.POST("/upload", func(c *gin.Context) {
-	//	file, err := c.FormFile("import")
-	//	if err != nil {
-	//		c.String(500, "上传文件出错")
-	//	}
-	//	c.SaveUploadedFile(file, file.Filename)
-	//	c.String(http.StatusOK, file.Filename+"上传成功")
-	//})
-	resp := wechat.SendTemplateMessage("osNMd68bPwCn7FRP-NISWGwg0Ybk", "74_djnRi8NLRpkr8uXd3OPJmNMZ7XAANWTnsw5QBKMZKYl4iuoX1rrYZTmrBy90aNw1QDjWU_2O2aj3oVflruCs_wBBSMcL3_CwuclmMXk_It0BwINHUMy7ftqeNOsRWBaAGAFKP")
-	body, _ := io.ReadAll(resp.Body)
-	println(string(body))
+	//r := gin.Default()
+	//r.POST("/templateMessage", wechat.TemplateMessageHandler)
+	//err := r.Run(":80")
+	//if err != nil {
+	//	println("错误")
+	//}
+	data := model.TemplateMessage{
+		WxOpenId:  "osNMd6yQN02kDAW7UiNsotP8J1YU",
+		Name:      "chuilishi",
+		Message:   "测试",
+		NowStatus: "成功录取",
+		HTTP:      "www.baidu.com",
+	}
+	wechat.SendTemplateMessage(data, "74_iI5-wV-sik6z_qrM9YQdu5RWxtgRweHjxuoHSQcfjBbIhCWU9Ko8ZVNArG3zyecEMlZmlzqr_Nq5k2NDa3vHVwqLD12_Yh8JjjttH7dGQmLT2M60JQE2iQZFx28VNTeAIAYQW")
 }

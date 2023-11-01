@@ -1,8 +1,10 @@
 package wechat
 
 import (
+	"ab_project/model"
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -14,8 +16,9 @@ type TemplateData struct {
 }
 
 type Data struct {
-	Username  Value `json:"username"`
-	IsSuccess Value `json:"isSuccess"`
+	Username Value `json:"username"`
+	Message  Value `json:"message"`
+	Status   Value `json:"status"`
 }
 
 type Value struct {
@@ -23,33 +26,34 @@ type Value struct {
 	Color string `json:"color"`
 }
 
-func SendTemplateMessage(usropenid string, accessToken string) *http.Response {
-	//username := "chuilishi"
-	//templateId := ""
-	//jsonData := `{
-	//        touser:` + usropenid + `,
-	//        template_id:` + templateId + `,
-	//        url:` + `https://www.bilibili.com/video/BV1GJ411x7h7` + `,
-	//        data:{
-	//		   username:{
-	//				value:` + username + `
-	//		   },
-	//		   isSuccess;{
-	//				value:` + `成功` + `
-	//		}
-	//	}
-	//}`
+/*
+调用方式
+resp := wechat.SendTemplateMessage(model.TemplateMessage{
+		WxOpenId:  "",
+		Name:      "",
+		Message:   "",
+		NowStatus: "",
+		HTTP:      "",
+	}, wechat.GetAccessToken(true))
+*/
+
+func SendTemplateMessage(message model.TemplateMessage, accessToken string) *http.Response {
 	data := TemplateData{
-		ToUser:     usropenid,
-		TemplateID: "bpv27yYOvMyjSy4s6aok9ebm3zfxG49IF7PpqYsMZ4o",
-		URL:        "https://www.bilibili.com/video/BV1GJ411x7h7",
+		ToUser: message.WxOpenId,
+		//模板id
+		TemplateID: "wjDMuDWaEcbc3Woq2igqPAwgO4lnJlrRES7CcJFml8g",
+		URL:        message.HTTP,
 		Data: Data{
 			Username: Value{
-				Value: "chuilishi",
-				Color: "#FF0000",
+				Value: message.Name,
+				Color: "#000000",
 			},
-			IsSuccess: Value{
-				Value: "成功",
+			Message: Value{
+				Value: message.Message,
+				Color: "#000000",
+			},
+			Status: Value{
+				Value: message.NowStatus,
 				Color: "#FF0000",
 			},
 		},
@@ -58,7 +62,8 @@ func SendTemplateMessage(usropenid string, accessToken string) *http.Response {
 	if err != nil {
 		return nil
 	}
-	println(string(marshalData))
 	resp, _ := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+accessToken, "application/json", bytes.NewBuffer(marshalData))
+	content, _ := io.ReadAll(resp.Body)
+	println(string(content))
 	return resp
 }
