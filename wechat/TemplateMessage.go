@@ -62,6 +62,7 @@ func SendTemplateMessage(message model.TemplateMessage, accessToken string) *htt
 	if err != nil {
 		return nil
 	}
+	println(marshalData)
 	resp, _ := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+accessToken, "application/json", bytes.NewBuffer(marshalData))
 	content, _ := io.ReadAll(resp.Body)
 	println(string(content))

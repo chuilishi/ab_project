@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -18,7 +19,7 @@ var myOpenId string = "gh_e7a9f5071ab9"
 var usrOpenId string = "oQQWt53FZT7A8pmqb7KVhLt68AOo"
 var appid string = "wx8ba1b60caf51ed26"
 var secret string = "e1a9d9c66d49b7425ab0ec7d90635f4c"
-var access_token string = "74__gWVfLC3utNeOEQIZohLUfrREUHpBMiWeBAaj0u_9UuAnN0DgeljqiqjPi_nc8wYOCxEaHGvh5kfY"
+var access_token string = "74_Z7RyL4Tpd1L1LOyKOj8mDS8zlECboNUGG-ki5l9c7oLwXphwbTYyn4sEIlzy9tQARSBz81Ph_4PqX3BdW8G_K768n8SEUNund9O10J76f2kdyeVAqE-q_6QFJLcWJYiAEAMZO"
 
 // EventBody 微信所有事件(关注,消息等)的结构体
 type EventBody struct {
@@ -246,12 +247,11 @@ func GetAccessToken(once bool) string {
 
 // 模板消息的handler
 func TemplateMessageHandler(c *gin.Context) {
-	println("触发")
 	wxOpenId := c.Query("wxOpenId")
 	name := c.Query("name")
-	message := c.Query("message")
-	nowStatus := c.Query("nowStatus")
-	HTTP := c.Query("HTTP")
+	message := url.QueryEscape(c.Query("message"))
+	nowStatus := url.QueryEscape(c.Query("nowStatus"))
+	HTTP := url.QueryEscape(c.Query("HTTP"))
 	m := model.TemplateMessage{
 		WxOpenId:  wxOpenId,
 		Name:      name,
@@ -259,7 +259,8 @@ func TemplateMessageHandler(c *gin.Context) {
 		NowStatus: nowStatus,
 		HTTP:      HTTP,
 	}
-	resp := SendTemplateMessage(m, access_token)
-	println(io.ReadAll(resp.Body))
+
+	SendTemplateMessage(m, GetAccessToken(true))
+
 	response.OkWithMessage("已接收", c)
 }
