@@ -2,21 +2,21 @@ package service
 
 import (
 	"ab_project/service/response"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"path"
 )
 
 func Upload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
-		response.FailWithMessage("上传文件出错", c)
+		c.String(500, "上传文件出错")
 	}
-	dst := path.Join("./statics", "Picture.jpg")
-	err = c.SaveUploadedFile(file, dst)
-	if err != nil {
-		fmt.Println(err)
+	if file.Size > 1024*1024*8 {
+		response.FailWithMessage("文件超出大小限制", c)
 		return
 	}
-	response.OkWithMessage("上传文件成功", c)
+	err = c.SaveUploadedFile(file, "")
+	if err != nil {
+		return
+	}
+	response.OkWithMessage("上传成功", c)
 }
