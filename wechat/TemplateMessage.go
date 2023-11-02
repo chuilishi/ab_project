@@ -37,23 +37,23 @@ resp := wechat.SendTemplateMessage(model.TemplateMessage{
 	}, wechat.GetAccessToken(true))
 */
 
-func SendTemplateMessage(message model.TemplateMessage, accessToken string) *http.Response {
+func SendTemplateMessage(Message model.TemplateMessage, AccessToken string) *http.Response {
 	data := TemplateData{
-		ToUser: message.WxOpenId,
+		ToUser: Message.WxOpenId,
 		//模板id
-		TemplateID: "wjDMuDWaEcbc3Woq2igqPAwgO4lnJlrRES7CcJFml8g",
-		URL:        message.HTTP,
+		TemplateID: "efZsl7ZUc1gA-JMz-CVYiv5wO4BLdSxemSYaSBohJI8",
+		URL:        Message.HTTP,
 		Data: Data{
 			Username: Value{
-				Value: message.Name,
+				Value: Message.Name,
 				Color: "#000000",
 			},
 			Message: Value{
-				Value: message.Message,
+				Value: Message.Message,
 				Color: "#000000",
 			},
 			Status: Value{
-				Value: message.NowStatus,
+				Value: Message.NowStatus,
 				Color: "#FF0000",
 			},
 		},
@@ -63,7 +63,7 @@ func SendTemplateMessage(message model.TemplateMessage, accessToken string) *htt
 		return nil
 	}
 	println(marshalData)
-	resp, _ := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+accessToken, "application/json", bytes.NewBuffer(marshalData))
+	resp, _ := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+AccessToken, "application/json", bytes.NewBuffer(marshalData))
 	content, _ := io.ReadAll(resp.Body)
 	println(string(content))
 	return resp

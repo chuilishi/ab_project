@@ -1,9 +1,9 @@
 package model
 
 type TemplateMessage struct {
-	WxOpenId  string `json:"wxOpenId"`  //要发送的openid
-	Name      string `json:"name"`      //姓名
-	Message   string `json:"message"`   //要发送的信息
-	NowStatus string `json:"nowStatus"` //目前录取状态
-	HTTP      string `json:"HTTP"`      //要跳转的网址
+	WxOpenId  string `form:"wxOpenId"`  //要发送的openid
+	Name      string `form:"name"`      //姓名
+	Message   string `form:"message"`   //要发送的信息
+	NowStatus string `form:"nowStatus"` //目前录取状态
+	HTTP      string `form:"HTTP"`      //要跳转的网址
 }

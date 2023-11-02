@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 )
@@ -247,20 +246,26 @@ func GetAccessToken(once bool) string {
 
 // 模板消息的handler
 func TemplateMessageHandler(c *gin.Context) {
-	wxOpenId := c.Query("wxOpenId")
-	name := c.Query("name")
-	message := url.QueryEscape(c.Query("message"))
-	nowStatus := url.QueryEscape(c.Query("nowStatus"))
-	HTTP := url.QueryEscape(c.Query("HTTP"))
-	m := model.TemplateMessage{
-		WxOpenId:  wxOpenId,
-		Name:      name,
-		Message:   message,
-		NowStatus: nowStatus,
-		HTTP:      HTTP,
+	TemplateData := model.TemplateMessage{}
+	err := c.ShouldBindQuery(&TemplateData)
+	if err != nil {
+		fmt.Sprintf("#####%v#####", err)
+		return
 	}
 
-	SendTemplateMessage(m, GetAccessToken(true))
+	//wxOpenId := c.Query("wxOpenId")
+	//name := c.Query("name")
+	//message := url.QueryEscape(c.Query("message"))
+	//nowStatus := url.QueryEscape(c.Query("nowStatus"))
+	//HTTP := url.QueryEscape(c.Query("HTTP"))
+	//m := model.TemplateMessage{
+	//	WxOpenId:  wxOpenId,
+	//	Name:      name,
+	//	Message:   message,
+	//	NowStatus: nowStatus,
+	//	HTTP:      HTTP,
+	//}
 
+	SendTemplateMessage(TemplateData, GetAccessToken(true))
 	response.OkWithMessage("已接收", c)
 }
