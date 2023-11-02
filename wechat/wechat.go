@@ -2,12 +2,15 @@ package wechat
 
 import (
 	"ab_project/middle"
+	"ab_project/model"
+	"ab_project/service/response"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -16,7 +19,7 @@ var myOpenId string = "gh_e7a9f5071ab9"
 var usrOpenId string = "oQQWt53FZT7A8pmqb7KVhLt68AOo"
 var appid string = "wx8ba1b60caf51ed26"
 var secret string = "e1a9d9c66d49b7425ab0ec7d90635f4c"
-var access_token string = "73_povW6cXWc6rITF10Pk53AfYAUj09bXvNcJdcqoy01jOgv5TddZjPXODmWXIYkEwA00M7Bl-zcgRvZGAGX-VY-KYCbHvN5toXv5icmaWvS2lybBCU879jd_RYAxIFFDaABATTR"
+var access_token string = "74_Z7RyL4Tpd1L1LOyKOj8mDS8zlECboNUGG-ki5l9c7oLwXphwbTYyn4sEIlzy9tQARSBz81Ph_4PqX3BdW8G_K768n8SEUNund9O10J76f2kdyeVAqE-q_6QFJLcWJYiAEAMZO"
 
 // EventBody 微信所有事件(关注,消息等)的结构体
 type EventBody struct {
@@ -58,8 +61,40 @@ func openidHandler(c *gin.Context) {
 		println("#####成功#####")
 		delete(ticketToOpenId, c.Query("ticket"))
 	} else {
-		c.String(http.StatusOK, "无效") //一直都没扫返回空字符串
+		code := c.Query("code")
+		if code == "" {
+			response.FailWithMessage("无效的ticket或者code", c)
+		} else {
+			//如果code不是空的说明是移动端发来的消息
+			mobileOpenidHandler(c)
+		}
 	}
+}
+
+// 移动端来获取openid
+func mobileOpenidHandler(c *gin.Context) {
+	code := c.Query("code")
+	resp, err := http.Get(fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", appid, secret, code))
+	if err != nil {
+		return
+	}
+	respjson := make(map[string]interface{})
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	json.Unmarshal(all, &respjson)
+
+	//上面说的那个moblieAccesstoken
+	mobileAccessToken = respjson["access_token"].(string)
+	openid := respjson["openid"].(string)
+	marshal, err := json.Marshal(Userinfo{
+		Openid: openid,
+	})
+	if err != nil {
+		return
+	}
+	response.OkWithData(marshal, c)
 }
 
 // 请求qrcode之后返回一个json
@@ -88,7 +123,7 @@ func qrcodeHandler(c *gin.Context) {
 	})
 }
 func Wechat() {
-	go GetAccessToken()
+	go GetAccessToken(false)
 	r := gin.Default()
 	r.Use(middle.Cors())
 	r.GET("/")
@@ -177,7 +212,22 @@ func Reply(c *gin.Context, message string, openid string) {
 //		}
 //		c.XML(http.StatusOK, rxml)
 //	}
-func GetAccessToken() {
+func GetAccessToken(once bool) string {
+	if once {
+		get, err := http.Get(fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", appid, secret))
+		if err != nil {
+			println("获取Access_token 异常")
+		}
+		body, _ := io.ReadAll(get.Body)
+		var data map[string]interface{}
+		err = json.Unmarshal(body, &data)
+		if err != nil {
+			println("获取Access_token 异常")
+		}
+		access_token = data["access_token"].(string)
+		return access_token
+	}
+
 	for {
 		get, err := http.Get(fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", appid, secret))
 		if err != nil {
@@ -193,4 +243,24 @@ func GetAccessToken() {
 		println("凭证是" + string(access_token))
 		time.Sleep(7000 * time.Second)
 	}
+}
+
+// 模板消息的handler
+func TemplateMessageHandler(c *gin.Context) {
+	wxOpenId := c.Query("wxOpenId")
+	name := c.Query("name")
+	message := url.QueryEscape(c.Query("message"))
+	nowStatus := url.QueryEscape(c.Query("nowStatus"))
+	HTTP := url.QueryEscape(c.Query("HTTP"))
+	m := model.TemplateMessage{
+		WxOpenId:  wxOpenId,
+		Name:      name,
+		Message:   message,
+		NowStatus: nowStatus,
+		HTTP:      HTTP,
+	}
+
+	SendTemplateMessage(m, GetAccessToken(true))
+
+	response.OkWithMessage("已接收", c)
 }
