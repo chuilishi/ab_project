@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"os"
 )
 
 var DB *gorm.DB
@@ -29,8 +30,13 @@ func InitGrom() {
 		fmt.Println(err)
 		return
 	}
-
+	err = os.Mkdir("./userFile", 0755)
 	DB = db
+	if err != nil {
+		fmt.Println("无法创建userfile文件夹")
+		return
+	}
+
 }
 
 // IsUserHave 通过WxOpenId查找用户是否存在
@@ -44,13 +50,16 @@ func IsUserHave(WxOpenId string) *model.User {
 func RegisterUser(user *model.User) error {
 	tempuser := IsUserHave(user.WxOpenId)
 	if tempuser.ID == 0 {
-
+		err := os.Mkdir("./userFile/"+user.WxOpenId, 0755)
+		if err != nil {
+			return err
+		}
 		return DB.Create(user).Error
 	}
 	return DB.Updates(user).Error
 }
 
-// 实现返回指定方向用户信息
+// FindUsersByDirection 实现返回指定方向用户信息
 func FindUsersByDirection(direction string) []model.User {
 	var users []model.User
 	if direction == "全部" {

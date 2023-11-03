@@ -1,22 +1,96 @@
 package service
 
 import (
+	"ab_project/mysqlDB"
 	"ab_project/service/response"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"os"
 )
 
-func Upload(c *gin.Context) {
-	file, err := c.FormFile("file")
-	if err != nil {
-		c.String(500, "上传文件出错")
-	}
-	if file.Size > 1024*1024*8 {
-		response.FailWithMessage("文件超出大小限制", c)
+// UploadUserFileMessage 实现上传多个用户文件并存储用户文件信息
+func UploadUserFileMessage(c *gin.Context) {
+	wxopenid := c.Query("wxopenid")
+	if wxopenid == "" {
+		response.FailWithMessage("无法正确得到message", c)
 		return
 	}
-	err = c.SaveUploadedFile(file, "")
+	form, err := c.MultipartForm()
 	if err != nil {
+		response.FailWithMessage("得到文件失败"+err.Error(), c)
 		return
 	}
-	response.OkWithMessage("上传成功", c)
+	files := form.File["file"]
+
+	_, err = os.Stat("./userFile/" + wxopenid)
+	if err != nil {
+		err = os.Mkdir("./userFile", 0755)
+		if err != nil {
+			response.FailWithMessage("无法创建文件夹", c)
+			return
+		}
+	}
+	count := 0
+	for _, file := range files {
+		//保存文件到指定的路径
+		if file.Size > 1024*1024*8 {
+			response.FailWithMessage(file.Filename+"文件超出大小限制", c)
+			continue
+		}
+		err = c.SaveUploadedFile(file, "./userFile/"+wxopenid+"/"+file.Filename)
+		if err != nil {
+			response.FailWithMessage("保存文件"+file.Filename+"出错"+err.Error(), c)
+			continue
+		}
+		count++
+	}
+	len := len(files)
+	response.OkWithMessage(fmt.Sprintf("共上传%d个文件，成功%d个，失败%d个", len, count, len-count), c)
+
+}
+func DeleteUserFileMessage(c *gin.Context) {
+	wxopenid := c.Query("wxopenid")
+	if wxopenid == "" {
+		response.FailWithMessage("无法得到openid", c)
+		return
+	}
+	filename := c.Query("file")
+	if filename == "" {
+		response.FailWithMessage("无法得到文件名", c)
+		return
+	}
+	err := os.Remove("./userFile/" + wxopenid + "/" + filename)
+	if err != nil {
+		response.FailWithMessage("删除文件出错"+err.Error(), c)
+	} else {
+		response.OkWithMessage("删除文件成功", c)
+	}
+}
+func ShowUserFileMessage(c *gin.Context) {
+	wxopenid := c.Query("wxopenid")
+	if wxopenid == "" {
+		response.FailWithMessage("无法得到openid", c)
+		return
+	}
+	user := mysqlDB.IsUserHave(wxopenid)
+	if user.ID == 0 {
+		response.FailWithMessage("微信用户不存在", c)
+		return
+	}
+
+	_, err := os.Stat("./userFile/" + wxopenid)
+
+	if err != nil {
+		err = os.Mkdir("./userFile/"+wxopenid, 0755)
+		if err != nil {
+			response.FailWithMessage("无法创建文件夹", c)
+			return
+		}
+	}
+	userFilePath := make(map[string]string)
+	files, err := os.ReadDir("./userFile/" + wxopenid + "/")
+	for _, file := range files {
+		userFilePath[file.Name()] = "http://localhost:8090/userfile/" + wxopenid + "/" + file.Name()
+	}
+	response.OkWithDetailed(userFilePath, "获取文件信息成功！", c)
 }

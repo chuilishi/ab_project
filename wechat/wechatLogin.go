@@ -15,11 +15,6 @@ var mobileAccessToken = ""
 // 移动端登录的时候给前端返回的信息
 type Userinfo struct {
 	Openid string `json:"openid"`
-	//移动端是可以获取微信相关信息的,头像,名称等等
-	//Nickname   string `json:"nickname"`
-	//Sex        string `json:"sex"`
-	//Country    string `json:"country"`
-	//Headimgurl string `json:"headimgurl"`
 }
 
 func WechatLogin(c *gin.Context) {

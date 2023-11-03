@@ -1,6 +1,7 @@
 package service
 
 import (
+	"ab_project/global"
 	"ab_project/model"
 	"ab_project/mysqlDB"
 	"ab_project/service/response"
@@ -43,4 +44,12 @@ func PostUserMessage(c *gin.Context) {
 	}
 	response.OkWithMessage("简历投递成功", c)
 	return
+}
+func LoginManage(c *gin.Context) {
+	manageID := c.Query("managername")
+	password := c.Query("password")
+	if manageID == global.ManageID && password == global.ManagePassword {
+		response.OkWithMessage(global.ManageName, c)
+	}
+	response.FailWithMessage("账号或密码错误", c)
 }
