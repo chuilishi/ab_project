@@ -90,7 +90,7 @@ func ShowUserFileMessage(c *gin.Context) {
 	userFilePath := make(map[string]string)
 	files, err := os.ReadDir("./userFile/" + wxopenid + "/")
 	for _, file := range files {
-		userFilePath[file.Name()] = "http://localhost:8090/userfile/" + wxopenid + "/" + file.Name()
+		userFilePath[file.Name()] = "http://123.207.73.185:8090/userFile/" + wxopenid + "/" + file.Name()
 	}
 	response.OkWithDetailed(userFilePath, "获取文件信息成功！", c)
 }

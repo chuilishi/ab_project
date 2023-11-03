@@ -50,6 +50,7 @@ func LoginManage(c *gin.Context) {
 	password := c.Query("password")
 	if manageID == global.ManageID && password == global.ManagePassword {
 		response.OkWithMessage(global.ManageName, c)
+		return
 	}
 	response.FailWithMessage("账号或密码错误", c)
 }
