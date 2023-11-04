@@ -24,9 +24,8 @@ func IsUserExist(c *gin.Context) {
 
 }
 
-// Register 用户简历投递实现
-// 提交成功code 1
-// 提交失败code 0
+// PostUserMessage 用户简历投递实现
+// 用户不存在那么创建，用户存在就更新
 func PostUserMessage(c *gin.Context) {
 	user := &model.User{}
 	err := c.ShouldBind(user)
