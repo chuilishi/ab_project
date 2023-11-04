@@ -17,7 +17,7 @@ type TemplateData struct {
 
 type Data struct {
 	Username Value `json:"username"`
-	Message  Value `json:"message"`
+	Message  Value `json:"msg"`
 	Status   Value `json:"status"`
 }
 
@@ -31,7 +31,7 @@ type Value struct {
 resp := wechat.SendTemplateMessage(model.TemplateMessage{
 		WxOpenId:  "",
 		Name:      "",
-		Message:   "",
+		Msg:   "",
 		NowStatus: "",
 		HTTP:      "",
 	}, wechat.GetAccessToken(true))
@@ -41,16 +41,16 @@ func SendTemplateMessage(Message model.TemplateMessage, AccessToken string) *htt
 	data := TemplateData{
 		ToUser: Message.WxOpenId,
 		//模板id
-		TemplateID: "efZsl7ZUc1gA-JMz-CVYiv5wO4BLdSxemSYaSBohJI8",
+		TemplateID: "N35CPkNtGlycDnK_pEGs3ojbA2GluAOoOS7OA9EgOww",
 		URL:        Message.HTTP,
 		Data: Data{
 			Username: Value{
 				Value: Message.Name,
-				Color: "#000000",
+				Color: "#FF0000",
 			},
 			Message: Value{
-				Value: Message.Message,
-				Color: "#000000",
+				Value: Message.Msg,
+				Color: "#FF0000",
 			},
 			Status: Value{
 				Value: Message.NowStatus,

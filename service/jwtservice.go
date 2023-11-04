@@ -24,5 +24,4 @@ func GiveJWT() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString([]byte(global.JWTKey))
 	return ss, err
-
 }

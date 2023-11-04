@@ -25,7 +25,7 @@ type EventBody struct {
 	FromUserName string `xml:"ToUserName"` //用户
 	Openid       string `xml:"FromUserName"`
 	MsgType      string `xml:"MsgType"` //关注事件的话这一条的值是event
-	Content      string `xml:"Content"`
+	Content      string `xml:"Msg"`
 	Event        string `xml:"Event"`    //可能的值 subscribe unsubscribe 等等
 	EventKey     string `xml:"EventKey"` //二维码携带的场景值
 	CreateTime   string `xml:"CreateTime"`
@@ -46,7 +46,7 @@ type responseXML struct {
 	FromUserName string `xml:"FromUserName"`
 	MsgType      string `xml:"MsgType"`
 	CreateTime   int64  `xml:"CreateTime"`
-	Content      string `xml:"Content"`
+	Content      string `xml:"Msg"`
 	// 若不标记XMLName, 则解析后的xml名为该结构体的名称
 	XMLName xml.Name `xml:"xml"`
 }
@@ -125,7 +125,9 @@ func Wechat() {
 	go GetAccessToken(false)
 	r := gin.Default()
 	r.Use(middle.Cors())
-	r.GET("/")
+	r.GET("/", func(context *gin.Context) {
+		response.OkWithMessage("Test", context)
+	})
 	r.GET("/qrcode", qrcodeHandler)
 	r.GET("/openid", openidHandler)
 	r.POST("/", func(c *gin.Context) {
@@ -207,7 +209,7 @@ func Reply(c *gin.Context, message string, openid string) {
 //			FromUserName: usrOpenId,
 //			MsgType:      "text",
 //			CreateTime:   time.Now().Unix(),
-//			Content:      ,
+//			Msg:      ,
 //		}
 //		c.XML(http.StatusOK, rxml)
 //	}
@@ -247,7 +249,7 @@ func GetAccessToken(once bool) string {
 // 模板消息的handler
 func TemplateMessageHandler(c *gin.Context) {
 	TemplateData := model.TemplateMessage{}
-	err := c.ShouldBindQuery(&TemplateData)
+	err := c.ShouldBind(&TemplateData)
 	if err != nil {
 		fmt.Sprintf("#####%v#####", err)
 		return
@@ -261,7 +263,7 @@ func TemplateMessageHandler(c *gin.Context) {
 	//m := model.TemplateMessage{
 	//	WxOpenId:  wxOpenId,
 	//	Name:      name,
-	//	Message:   message,
+	//	Msg:   message,
 	//	NowStatus: nowStatus,
 	//	HTTP:      HTTP,
 	//}
