@@ -45,6 +45,8 @@ func PostUserMessage(c *gin.Context) {
 	response.OkWithMessage("简历投递成功", c)
 	return
 }
+
+// LoginManage 管理员登录实现
 func LoginManage(c *gin.Context) {
 	manageID := c.Query("managername")
 	password := c.Query("password")

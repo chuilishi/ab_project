@@ -1,5 +1,6 @@
 package model
 
+// Manager 管理员数据库
 type Manager struct {
 	Model
 	Studentid string `gorm:"primarykey;column:studentid;type:varchar(13);" json:"studentid"` //学号

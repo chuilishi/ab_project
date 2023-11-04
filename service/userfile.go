@@ -33,10 +33,11 @@ func UploadUserFileMessage(c *gin.Context) {
 	count := 0
 	for _, file := range files {
 		//保存文件到指定的路径
-		if file.Size > 1024*1024*8 {
+		if file.Size > 1024*1024*50 {
 			response.FailWithMessage(file.Filename+"文件超出大小限制", c)
 			continue
 		}
+		//上传到本地文件夹./userFile/wxopenid/下面
 		err = c.SaveUploadedFile(file, "./userFile/"+wxopenid+"/"+file.Filename)
 		if err != nil {
 			response.FailWithMessage("保存文件"+file.Filename+"出错"+err.Error(), c)
@@ -48,6 +49,8 @@ func UploadUserFileMessage(c *gin.Context) {
 	response.OkWithMessage(fmt.Sprintf("共上传%d个文件，成功%d个，失败%d个", len, count, len-count), c)
 
 }
+
+// DeleteUserFileMessage 实现在本地删除用户文件
 func DeleteUserFileMessage(c *gin.Context) {
 	wxopenid := c.Query("wxopenid")
 	if wxopenid == "" {
@@ -66,6 +69,8 @@ func DeleteUserFileMessage(c *gin.Context) {
 		response.OkWithMessage("删除文件成功", c)
 	}
 }
+
+// ShowUserFileMessage 实现展示用户信息及其下载链接
 func ShowUserFileMessage(c *gin.Context) {
 	wxopenid := c.Query("wxopenid")
 	if wxopenid == "" {

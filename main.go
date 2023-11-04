@@ -24,6 +24,7 @@ func main() {
 
 	mysqlDB.InitGrom()
 	go router.InitGetUserFileMessageHandler()
+
 	r := router.GetRouter()
 	r.Run(":8080")
 	wechat.Wechat()

@@ -7,6 +7,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"os"
+	"time"
 )
 
 var DB *gorm.DB
@@ -54,9 +55,15 @@ func RegisterUser(user *model.User) error {
 		if err != nil {
 			return err
 		}
-		return DB.Create(user).Error
+		err = DB.Create(user).Error
+		if err != nil {
+			fmt.Println("创建用户数据出错" + err.Error())
+		}
+		user.PersonalId = fmt.Sprintf("%d%02d%04d", time.Now().Year(), time.Now().Month(), IsUserHave(user.WxOpenId).ID)
 	}
+
 	return DB.Updates(user).Error
+
 }
 
 // FindUsersByDirection 实现返回指定方向用户信息
