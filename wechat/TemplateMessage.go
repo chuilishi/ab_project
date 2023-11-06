@@ -17,7 +17,7 @@ type TemplateData struct {
 
 type Data struct {
 	Username Value `json:"username"`
-	Message  Value `json:"message"`
+	Message  Value `json:"msg"`
 	Status   Value `json:"status"`
 }
 
@@ -31,29 +31,29 @@ type Value struct {
 resp := wechat.SendTemplateMessage(model.TemplateMessage{
 		WxOpenId:  "",
 		Name:      "",
-		Message:   "",
+		Msg:   "",
 		NowStatus: "",
 		HTTP:      "",
 	}, wechat.GetAccessToken(true))
 */
 
-func SendTemplateMessage(message model.TemplateMessage, accessToken string) *http.Response {
+func SendTemplateMessage(Message model.TemplateMessage, AccessToken string) *http.Response {
 	data := TemplateData{
-		ToUser: message.WxOpenId,
+		ToUser: Message.WxOpenId,
 		//模板id
-		TemplateID: "wjDMuDWaEcbc3Woq2igqPAwgO4lnJlrRES7CcJFml8g",
-		URL:        message.HTTP,
+		TemplateID: "N35CPkNtGlycDnK_pEGs3ojbA2GluAOoOS7OA9EgOww",
+		URL:        Message.HTTP,
 		Data: Data{
 			Username: Value{
-				Value: message.Name,
-				Color: "#000000",
+				Value: Message.Name,
+				Color: "#FF0000",
 			},
 			Message: Value{
-				Value: message.Message,
-				Color: "#000000",
+				Value: Message.Msg,
+				Color: "#FF0000",
 			},
 			Status: Value{
-				Value: message.NowStatus,
+				Value: Message.NowStatus,
 				Color: "#FF0000",
 			},
 		},
@@ -63,7 +63,7 @@ func SendTemplateMessage(message model.TemplateMessage, accessToken string) *htt
 		return nil
 	}
 	println(marshalData)
-	resp, _ := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+accessToken, "application/json", bytes.NewBuffer(marshalData))
+	resp, _ := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+AccessToken, "application/json", bytes.NewBuffer(marshalData))
 	content, _ := io.ReadAll(resp.Body)
 	println(string(content))
 	return resp
