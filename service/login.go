@@ -13,9 +13,10 @@ import (
 // 未提交过返回0
 // 已经提交过返回code 1并且返回用户结构体
 func IsUserExist(c *gin.Context) {
-	wxopenid := c.Query("openid")
-
-	fmt.Println(wxopenid)
+	wxopenid := c.Query("wxopenid")
+	if wxopenid == "" {
+		response.FailWithMessage("参数请求错误", c)
+	}
 	user := mysqlDB.IsUserHave(wxopenid)
 	if user.ID == 0 {
 		response.FailWithMessage("用户没有提交过", c)
@@ -35,7 +36,6 @@ func PostUserMessage(c *gin.Context) {
 		response.FailWithMessage("简历投递失败,"+err.Error(), c)
 		return
 	}
-	fmt.Println(user)
 	err = mysqlDB.RegisterUser(user)
 	if err != nil {
 		fmt.Println(err)
@@ -48,11 +48,23 @@ func PostUserMessage(c *gin.Context) {
 
 // LoginManage 管理员登录实现
 func LoginManage(c *gin.Context) {
-	manageID := c.Query("managername")
-	password := c.Query("password")
-	if manageID == global.ManageID && password == global.ManagePassword {
-		response.OkWithMessage(global.ManageName, c)
+	var manager model.Manager
+	c.ShouldBind(&manager)
+	fmt.Println(manager.ManagerName)
+	fmt.Println(manager.Password)
+	if manager.ManagerName == global.ManageID && manager.Password == global.ManagePassword {
+		jwttoken, err := GiveJWT(manager.ManagerName)
+		if err != nil {
+			fmt.Println("无法生成jwt-token", err)
+			return
+		}
+		response.OkWithDetailed(gin.H{"jwtCode": jwttoken}, global.ManageName, c)
 		return
 	}
 	response.FailWithMessage("账号或密码错误", c)
+}
+
+// UserHistory todo
+func UserHistory(c *gin.Context) {
+
 }

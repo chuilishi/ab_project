@@ -22,3 +22,9 @@ func FindUsersByStatus(c *gin.Context) {
 	response.OkWithDetailed(users, status, c)
 
 }
+
+// FindProblemUsers 查找异常学生
+func FindProblemUsers(c *gin.Context) {
+	users := mysqlDB.FindProblemUsers()
+	response.OkWithDetailed(users, "查找到的异常用户", c)
+}

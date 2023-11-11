@@ -34,3 +34,14 @@ func ShowUserMessage(c *gin.Context) {
 
 	response.OkWithDetailed(allMessage, "用户信息", c)
 }
+
+// UsersStatus 展示所有用户状态
+func UsersStatus(c *gin.Context) {
+	users, err := mysqlDB.AllUserStatus()
+	if err != nil {
+		response.FailWithMessage("无法获取状态"+err.Error(), c)
+		return
+	}
+	response.OkWithDetailed(users, "获取成功", c)
+	return
+}

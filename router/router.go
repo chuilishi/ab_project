@@ -6,8 +6,6 @@ import (
 	"ab_project/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	swagger "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 )
 
@@ -19,19 +17,28 @@ import (
 //	@host			123.207.73.185:8080
 func GetRouter() *gin.Engine {
 	r := gin.Default()
-	r.GET("/loginManager", service.LoginManage)
 	r.Use(middle.Cors())
 
-	r.GET("/isUserExist", service.IsUserExist)
-	r.GET("/userDirection", service.FindUsersByDirection)
 	r.POST("/postUserMessage", service.PostUserMessage)
-	r.POST("/createUserMessage", service.PostUserMessage)
-	r.POST("/sendMessageToUser", service.SendMessageToUser)
+	r.GET("/isUserExist", service.IsUserExist)
 	r.POST("/uploadUserFileMessage", service.UploadUserFileMessage)
 	r.DELETE("/deleteUserFileMessage", service.DeleteUserFileMessage)
 	r.GET("/showUserFileMessage", service.ShowUserFileMessage)
-	r.GET("/showUserMessage", service.ShowUserMessage)
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
+	r.POST("/loginManager", service.LoginManage)
+	r.POST("/problems", service.IHaveProblems)
+
+	admin := r.Group("admin").Use(middle.JWTCheck())
+	admin.POST("/updateUserMessage", service.PostUserMessage)
+	admin.GET("/showUserFileMessage", service.ShowUserFileMessage)
+	admin.GET("/userDirection", service.FindUsersByDirection)
+	admin.GET("/userStatus", service.FindUsersByStatus)
+	admin.GET("/userProblems", service.FindProblemUsers)
+	admin.POST("/sendMessageToUser", service.SendMessageToUser)
+	admin.GET("/showUserMessage", service.ShowUserMessage)
+	admin.GET("/userStatue", service.UsersStatus)
+	admin.POST("/uploadPicture", service.UploadPicture)
+
+	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
 
 	return r
 }

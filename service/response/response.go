@@ -60,3 +60,11 @@ func FailWithMessage(message string, c *gin.Context) {
 func FailWithDetailed(data interface{}, message string, c *gin.Context) {
 	Result(ERROR, data, message, c)
 }
+func CannotPassWithMessage(message string, c *gin.Context) {
+	c.JSON(401, Response{
+		0,
+		map[string]interface{}{},
+		message,
+	})
+
+}
