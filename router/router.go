@@ -4,9 +4,9 @@ import (
 	_ "ab_project/docs"
 	"ab_project/middle"
 	"ab_project/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	swagger "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"net/http"
 )
 
 // GetRouter 返回集成router
@@ -18,13 +18,36 @@ import (
 func GetRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(middle.Cors())
-	r.GET("/isUserExist", service.IsUserExist)
-	r.GET("/userDirection", service.FindUsersByDirection)
+
 	r.POST("/postUserMessage", service.PostUserMessage)
-	r.POST("/createUserMessage", service.PostUserMessage)
-	r.POST("sendMessageToUser", service.SendMessageToUser)
-	r.POST("/upload", service.Upload)
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
+	r.GET("/isUserExist", service.IsUserExist)
+	r.POST("/uploadUserFileMessage", service.UploadUserFileMessage)
+	r.DELETE("/deleteUserFileMessage", service.DeleteUserFileMessage)
+	r.GET("/showUserFileMessage", service.ShowUserFileMessage)
+	r.POST("/loginManager", service.LoginManage)
+	r.POST("/problems", service.IHaveProblems)
+
+	admin := r.Group("admin").Use(middle.JWTCheck())
+	admin.POST("/updateUserMessage", service.PostUserMessage)
+	admin.GET("/showUserFileMessage", service.ShowUserFileMessage)
+	admin.GET("/userDirection", service.FindUsersByDirection)
+	admin.GET("/userStatus", service.FindUsersByStatus)
+	admin.GET("/userProblems", service.FindProblemUsers)
+	admin.POST("/sendMessageToUser", service.SendMessageToUser)
+	admin.GET("/showUserMessage", service.ShowUserMessage)
+	admin.GET("/userStatue", service.UsersStatus)
+	admin.POST("/uploadPicture", service.UploadPicture)
+
+	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
 
 	return r
+}
+func InitGetUserFileMessageHandler() {
+	http.Handle("/", http.FileServer(http.Dir("./")))
+
+	err := http.ListenAndServe(":8090", nil)
+	if err != nil {
+		fmt.Println("文件服务器启动失败" + err.Error())
+	}
+
 }

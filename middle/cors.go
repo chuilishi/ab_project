@@ -11,7 +11,7 @@ func Cors() gin.HandlerFunc {
 		//Access-Control-Allow-Credentials=true和Access-Control-Allow-Origin="*"有冲突
 		//故Access-Control-Allow-Origin需要指定具体得跨域origin或者直接Access-Control-Allow-Origin="*"
 		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Headers", "content-type")
+		c.Header("Access-Control-Allow-Headers", "Content-Type,Jwt-Code")
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
 		//c.Header("Access-Control-Expose-Headers", "*")
 		if c.Request.Method == "OPTIONS" {
