@@ -16,8 +16,14 @@ import (
 
 var myOpenId string = "gh_e7a9f5071ab9"
 var usrOpenId string = "oQQWt53FZT7A8pmqb7KVhLt68AOo"
+
 var appid string = "wx8ba1b60caf51ed26"
+
+//var appid string = "wx54539a45cc39782b"
+
 var secret string = "e1a9d9c66d49b7425ab0ec7d90635f4c"
+
+// var secret string = "4cff84381199dda3c57badb5d5fa8f26"
 var access_token string = "74_Z7RyL4Tpd1L1LOyKOj8mDS8zlECboNUGG-ki5l9c7oLwXphwbTYyn4sEIlzy9tQARSBz81Ph_4PqX3BdW8G_K768n8SEUNund9O10J76f2kdyeVAqE-q_6QFJLcWJYiAEAMZO"
 
 // EventBody 微信所有事件(关注,消息等)的结构体
@@ -64,7 +70,6 @@ func openidHandler(c *gin.Context) {
 		if code == "" {
 			response.FailWithMessage("无效的ticket或者code", c)
 		} else {
-			//如果code不是空的说明是移动端发来的消息
 			mobileOpenidHandler(c)
 		}
 	}
@@ -87,13 +92,12 @@ func mobileOpenidHandler(c *gin.Context) {
 	//上面说的那个moblieAccesstoken
 	mobileAccessToken = respjson["access_token"].(string)
 	openid := respjson["openid"].(string)
-	marshal, err := json.Marshal(Userinfo{
-		Openid: openid,
-	})
+	fmt.Println("$$$$$$$$" + openid + "$$$$$$$$")
+
 	if err != nil {
 		return
 	}
-	response.OkWithData(marshal, c)
+	response.OkWithData(openid, c)
 }
 
 // 请求qrcode之后返回一个json
@@ -122,6 +126,7 @@ func qrcodeHandler(c *gin.Context) {
 	})
 }
 func Wechat() {
+	//一直更新一个access_token (不然会过期)
 	go GetAccessToken(false)
 	r := gin.Default()
 	r.Use(middle.Cors())
@@ -130,6 +135,7 @@ func Wechat() {
 	})
 	r.GET("/qrcode", qrcodeHandler)
 	r.GET("/openid", openidHandler)
+	r.GET("/message", TemplateMessageHandler)
 	r.POST("/", func(c *gin.Context) {
 		body, err1 := io.ReadAll(c.Request.Body)
 		if err1 != nil {
@@ -153,28 +159,39 @@ func Wechat() {
 		case "event":
 			switch eventBody.Event {
 			case "subscribe":
-				println("有人关注")
-				Reply(c, "achobeta,启动!", eventBody.Openid)
-				if eventBody.Ticket != "" { //登录事件
-					ch, exist := ticketToOpenId[eventBody.Ticket]
-					if !exist {
-						ticketToOpenId[eventBody.Ticket] = make(chan string)
-					}
-					ch <- eventBody.Openid
-				}
+				SendTemplateMessage(model.TemplateMessage{
+					WxOpenId:  eventBody.Openid,
+					Name:      "从数据库拿过来",
+					Msg:       "test",
+					NowStatus: "test状态",
+					HTTP:      "http://123.207.73.185:100?id=" + eventBody.Openid,
+				})
+				//Reply(c, "achobeta,启动!", eventBody.Openid)
+				//if eventBody.Ticket != "" { //登录事件
+				//	ch, exist := ticketToOpenId[eventBody.Ticket]
+				//	if !exist {
+				//		ticketToOpenId[eventBody.Ticket] = make(chan string)
+				//	}
+				//	ch <- eventBody.Openid
+				//}
 				break
 			case "unsubscribe":
 				break
 			case "SCAN":
-				println("有人扫二维码")
-				Reply(c, "欢迎回来", eventBody.Openid)
-				if eventBody.Ticket != "" { //登录事件
-					ch, exist := ticketToOpenId[eventBody.Ticket]
-					if !exist {
-						ticketToOpenId[eventBody.Ticket] = make(chan string)
-					}
-					ch <- eventBody.Openid
-				}
+				SendTemplateMessage(model.TemplateMessage{
+					WxOpenId:  eventBody.Openid,
+					Name:      "从数据库拿",
+					Msg:       "test",
+					NowStatus: "test状态",
+					HTTP:      "http://123.207.73.185:100?id=" + eventBody.Openid,
+				})
+				//if eventBody.Ticket != "" { //登录事件
+				//	ch, exist := ticketToOpenId[eventBody.Ticket]
+				//	if !exist {
+				//		ticketToOpenId[eventBody.Ticket] = make(chan string)
+				//	}
+				//	ch <- eventBody.Openid
+				//}
 				break
 			}
 			break
@@ -191,7 +208,7 @@ func Wechat() {
 	}
 }
 
-// 回复
+// 回复消息
 func Reply(c *gin.Context, message string, openid string) {
 	rxml := responseXML{
 		ToUserName:   openid,
@@ -203,16 +220,6 @@ func Reply(c *gin.Context, message string, openid string) {
 	c.XML(http.StatusOK, rxml)
 }
 
-//	func TextHandler(c *gin.Context) {
-//		rxml := responseXML{
-//			ToUserName:   myOpenId,
-//			FromUserName: usrOpenId,
-//			MsgType:      "text",
-//			CreateTime:   time.Now().Unix(),
-//			Msg:      ,
-//		}
-//		c.XML(http.StatusOK, rxml)
-//	}
 func GetAccessToken(once bool) string {
 	if once {
 		get, err := http.Get(fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", appid, secret))
@@ -254,20 +261,6 @@ func TemplateMessageHandler(c *gin.Context) {
 		fmt.Sprintf("#####%v#####", err)
 		return
 	}
-
-	//wxOpenId := c.Query("wxOpenId")
-	//name := c.Query("name")
-	//message := url.QueryEscape(c.Query("message"))
-	//nowStatus := url.QueryEscape(c.Query("nowStatus"))
-	//HTTP := url.QueryEscape(c.Query("HTTP"))
-	//m := model.TemplateMessage{
-	//	WxOpenId:  wxOpenId,
-	//	Name:      name,
-	//	Msg:   message,
-	//	NowStatus: nowStatus,
-	//	HTTP:      HTTP,
-	//}
-
-	SendTemplateMessage(TemplateData, GetAccessToken(true))
+	SendTemplateMessage(TemplateData)
 	response.OkWithMessage("已接收", c)
 }

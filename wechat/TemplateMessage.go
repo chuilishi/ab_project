@@ -37,7 +37,7 @@ resp := wechat.SendTemplateMessage(model.TemplateMessage{
 	}, wechat.GetAccessToken(true))
 */
 
-func SendTemplateMessage(Message model.TemplateMessage, AccessToken string) *http.Response {
+func SendTemplateMessage(Message model.TemplateMessage) error {
 	data := TemplateData{
 		ToUser: Message.WxOpenId,
 		//模板id
@@ -63,8 +63,8 @@ func SendTemplateMessage(Message model.TemplateMessage, AccessToken string) *htt
 		return nil
 	}
 	println(marshalData)
-	resp, _ := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+AccessToken, "application/json", bytes.NewBuffer(marshalData))
+	resp, err := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+access_token, "application/json", bytes.NewBuffer(marshalData))
 	content, _ := io.ReadAll(resp.Body)
 	println(string(content))
-	return resp
+	return err
 }
