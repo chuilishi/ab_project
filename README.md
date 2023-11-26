@@ -10,4 +10,5 @@ ab_project
     |————router     (路由管理层)
     |————service    (核心服务层)
          └──response(出参结构体)
+    |————wechat     (微信相关功能)
 ```
