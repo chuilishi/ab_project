@@ -42,9 +42,14 @@ func SendTemplateMessage(Message model.TemplateMessage) error {
 	templateId := ""
 	switch Message.Code {
 	case 0:
-		templateId = "I6SkTzYuGndvGGaWwR_fGbPA3kyMVVi2rHi5c-h_-bo"
+		//日程安排
+		templateId = "q9yRRqUZL9Mo_gkgfH3PVCmFNbCg1w7towmhE1rPl38"
 	case 1:
-
+		//面试结果
+		templateId = "K2QX9SUT_XivtOD60DeTMDv3W9f4EwmtKEo2Y11B3W0"
+	case 2:
+		//面试会议
+		templateId = "Hww8HsZFaOI0rU1Uaf0l9x6X9JgPOiD3TYM5AT5qdgs"
 	}
 	data := TemplateData{
 		ToUser: Message.WxOpenId,

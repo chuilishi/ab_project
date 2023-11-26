@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"regexp"
 	"strconv"
+	"time"
 )
 
 // EditUserStatus 编辑用户状态 已经弃用
@@ -70,7 +71,9 @@ func SendMessage(c *gin.Context) {
 	re := regexp.MustCompile(`(\d{16})`)
 	fmt.Println(msg.HTTP)
 	if !re.MatchString(msg.HTTP) {
-		response.FailWithMessage("无正确的HTTP参数", c)
+		err = wechat.SendTemplateMessage(msg)
+		response.OkWithMessage("发送成功", c)
+		message.SendMessage(msg.WxOpenId, msg.Msg, strconv.FormatInt(time.Now().Unix(), 10))
 		return
 	}
 	fmt.Println(msg)
