@@ -28,7 +28,7 @@ func main() {
 	go router.InitGetUserFileMessageHandler()
 	go wechat.GetAccessToken(false)
 	r := router.GetRouter()
-	r.Run(":8080")
+	r.Run(":80")
 	//resp := wechat.SendTemplateMessage("osNMd68bPwCn7FRP-NISWGwg0Ybk", "74_djnRi8NLRpkr8uXd3OPJmNMZ7XAANWTnsw5QBKMZKYl4iuoX1rrYZTmrBy90aNw1QDjWU_2O2aj3oVflruCs_wBBSMcL3_CwuclmMXk_It0BwINHUMy7ftqeNOsRWBaAGAFKP")
 	//body, _ := io.ReadAll(resp.Body)
 	//println(string(body))

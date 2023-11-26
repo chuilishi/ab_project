@@ -30,9 +30,3 @@ func TestAllUserStatus(t *testing.T) {
 	user, _ := AllUserStatus()
 	fmt.Println(user)
 }
-func TestFindUserPassHistory(t *testing.T) {
-	InitGrom()
-	message, err := FindUserPassHistory("2654123", 1)
-	fmt.Println(message, err)
-	return
-}

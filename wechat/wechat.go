@@ -152,10 +152,10 @@ func RootMessageHandler(c *gin.Context) {
 		case "subscribe":
 			SendTemplateMessage(model.TemplateMessage{
 				WxOpenId:  eventBody.Openid,
-				Name:      "从数据库拿过来",
-				Msg:       "test",
-				NowStatus: "test状态",
-				HTTP:      "http://123.207.73.185:100?id=" + eventBody.Openid,
+				Name:      "",
+				Msg:       "欢迎关注",
+				NowStatus: "",
+				HTTP:      "http://123.207.73.185:100?wxopenid=" + eventBody.Openid,
 			})
 			//Reply(c, "achobeta,启动!", eventBody.Openid)
 			//if eventBody.Ticket != "" { //登录事件
@@ -171,10 +171,10 @@ func RootMessageHandler(c *gin.Context) {
 		case "SCAN":
 			SendTemplateMessage(model.TemplateMessage{
 				WxOpenId:  eventBody.Openid,
-				Name:      "从数据库拿",
-				Msg:       "test",
-				NowStatus: "test状态",
-				HTTP:      "http://123.207.73.185:100?id=" + eventBody.Openid,
+				Name:      "",
+				Msg:       "",
+				NowStatus: "点击该链接",
+				HTTP:      "http://123.207.73.185:100?wxopenid=" + eventBody.Openid,
 			})
 			//if eventBody.Ticket != "" { //登录事件
 			//	ch, exist := ticketToOpenId[eventBody.Ticket]
@@ -250,10 +250,11 @@ func GetAccessToken(once bool) string {
 
 // 模板消息的handler
 func TemplateMessageHandler(c *gin.Context) {
+	println("asdfasdf")
 	TemplateData := model.TemplateMessage{}
 	err := c.ShouldBind(&TemplateData)
 	if err != nil {
-		fmt.Sprintf("#####%v#####", err)
+		response.FailWithMessage("模板消息发送失败"+err.Error(), c)
 		return
 	}
 	SendTemplateMessage(TemplateData)

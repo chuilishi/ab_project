@@ -47,7 +47,7 @@ func GetRouter() *gin.Engine {
 
 	r.GET("/qrcode", wechat.QrcodeHandler)
 	r.GET("/openid", wechat.OpenidHandler)
-	r.GET("/templateMessage", wechat.TemplateMessageHandler)
+	r.POST("/templateMessage", wechat.TemplateMessageHandler)
 	r.POST("/", wechat.RootMessageHandler)
 	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
 
