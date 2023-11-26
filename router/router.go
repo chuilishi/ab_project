@@ -17,7 +17,7 @@ import (
 //	@host			123.207.73.185:8080
 func GetRouter() *gin.Engine {
 	r := gin.Default()
-	r.Use(middle.Cors(), middle.Logger())
+	r.Use(middle.Cors())
 	r.POST("/postUserMessage", service.PostUserMessage)
 	r.GET("/isUserExist", service.IsUserExist)
 	r.POST("/uploadUserFileMessage", service.UploadUserFileMessage)
