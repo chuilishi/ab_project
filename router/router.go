@@ -29,6 +29,7 @@ func GetRouter() *gin.Engine {
 	r.GET("/userHistory", service.UserPassHistory)
 	r.GET("/homePicture", service.ShowHomePicture)
 	r.GET("/isIdUsed", service.IsIdUsed)
+	r.POST("/")
 	admin := r.Group("admin").Use(middle.JWTCheck())
 	admin.POST("/updateUserMessage", service.AdminPostUserMessage)
 	admin.GET("/showUserFileMessage", service.ShowUserFileMessage)
@@ -55,5 +56,4 @@ func InitGetUserFileMessageHandler() {
 	if err != nil {
 		fmt.Println("文件服务器启动失败" + err.Error())
 	}
-
 }

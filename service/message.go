@@ -60,6 +60,7 @@ func OverComeProblems(c *gin.Context) {
 
 // SendMessage 给用户发送信息
 func SendMessage(c *gin.Context) {
+	println("####################")
 	var msg = model.TemplateMessage{}
 	err := c.ShouldBind(&msg)
 	if err != nil {

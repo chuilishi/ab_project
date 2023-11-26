@@ -20,12 +20,11 @@ func InitGrom() {
 	if err != nil {
 		fmt.Println("无法连接数据库！", err)
 		panic("无法连接数据库！")
-		return
+
 	}
 	err = db.AutoMigrate(&model.User{}, &model.Message{}, &model.MessageTemplate{})
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 
 	DB = db
@@ -40,7 +39,7 @@ func InitGrom() {
 
 	if err != nil {
 		fmt.Println("无法创建picture文件夹")
-		return
+
 	}
 
 	_, err = os.Stat("./userFile/ppp")
@@ -48,7 +47,6 @@ func InitGrom() {
 
 	if err != nil {
 		fmt.Println("无法创建ppp文件夹")
-		return
 	}
 }
 

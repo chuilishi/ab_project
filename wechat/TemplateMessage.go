@@ -1,6 +1,7 @@
 package wechat
 
 import (
+	"ab_project/global"
 	"ab_project/model"
 	"bytes"
 	"encoding/json"
@@ -38,10 +39,17 @@ resp := wechat.SendTemplateMessage(model.TemplateMessage{
 */
 
 func SendTemplateMessage(Message model.TemplateMessage) error {
+	templateId := ""
+	switch Message.Code {
+	case 0:
+		templateId = "I6SkTzYuGndvGGaWwR_fGbPA3kyMVVi2rHi5c-h_-bo"
+	case 1:
+
+	}
 	data := TemplateData{
 		ToUser: Message.WxOpenId,
 		//模板id
-		TemplateID: "N35CPkNtGlycDnK_pEGs3ojbA2GluAOoOS7OA9EgOww",
+		TemplateID: templateId,
 		URL:        Message.HTTP,
 		Data: Data{
 			Username: Value{
@@ -63,7 +71,7 @@ func SendTemplateMessage(Message model.TemplateMessage) error {
 		return nil
 	}
 	println(marshalData)
-	resp, err := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+access_token, "application/json", bytes.NewBuffer(marshalData))
+	resp, err := http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+global.AccessToken, "application/json", bytes.NewBuffer(marshalData))
 	content, _ := io.ReadAll(resp.Body)
 	println(string(content))
 	return err

@@ -1,6 +1,7 @@
 package wechat
 
 import (
+	"ab_project/global"
 	//"ab_project/middle"
 	"ab_project/model"
 	"ab_project/service/response"
@@ -58,7 +59,7 @@ type responseXML struct {
 }
 
 // 带着ticket参数来获取openid
-func openidHandler(c *gin.Context) {
+func OpenidHandler(c *gin.Context) {
 	openidChan, exist := ticketToOpenId[c.Query("ticket")]
 	if exist {
 		openid := <-openidChan
@@ -101,8 +102,8 @@ func mobileOpenidHandler(c *gin.Context) {
 }
 
 // 请求qrcode之后返回一个json
-func qrcodeHandler(c *gin.Context) {
-	url := "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=" + access_token
+func QrcodeHandler(c *gin.Context) {
+	url := "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=" + global.AccessToken
 	jsondata := `{
         "action_name": "QR_LIMIT_SCENE",
         "action_info": {
@@ -125,6 +126,71 @@ func qrcodeHandler(c *gin.Context) {
 		"ticket": respjson["ticket"].(string),
 	})
 }
+func User(c *gin.Context) {
+	body, err1 := io.ReadAll(c.Request.Body)
+	if err1 != nil {
+		println("Body读取错误")
+	} else {
+		println("#####body####" + string(body) + "#####body####")
+	}
+	var eventBody EventBody
+	//myOpenId = eventBody.ToUserName
+	err := xml.Unmarshal(body, &eventBody)
+	if err != nil {
+		println("绑定错误")
+		return
+	} else {
+		println("绑定成功")
+	}
+	if eventBody.Openid == "" {
+		return
+	} //不是微信方发来的消息退出
+	switch eventBody.MsgType {
+	case "event":
+		switch eventBody.Event {
+		case "subscribe":
+			SendTemplateMessage(model.TemplateMessage{
+				WxOpenId:  eventBody.Openid,
+				Name:      "从数据库拿过来",
+				Msg:       "test",
+				NowStatus: "test状态",
+				HTTP:      "http://123.207.73.185:100?id=" + eventBody.Openid,
+			})
+			//Reply(c, "achobeta,启动!", eventBody.Openid)
+			//if eventBody.Ticket != "" { //登录事件
+			//	ch, exist := ticketToOpenId[eventBody.Ticket]
+			//	if !exist {
+			//		ticketToOpenId[eventBody.Ticket] = make(chan string)
+			//	}
+			//	ch <- eventBody.Openid
+			//}
+			break
+		case "unsubscribe":
+			break
+		case "SCAN":
+			SendTemplateMessage(model.TemplateMessage{
+				WxOpenId:  eventBody.Openid,
+				Name:      "从数据库拿",
+				Msg:       "test",
+				NowStatus: "test状态",
+				HTTP:      "http://123.207.73.185:100?id=" + eventBody.Openid,
+			})
+			//if eventBody.Ticket != "" { //登录事件
+			//	ch, exist := ticketToOpenId[eventBody.Ticket]
+			//	if !exist {
+			//		ticketToOpenId[eventBody.Ticket] = make(chan string)
+			//	}
+			//	ch <- eventBody.Openid
+			//}
+			break
+		}
+		break
+	case "text":
+		println("发送的是消息")
+		Reply(c, eventBody.Content+"当然是正确的,"+"你说的对，但是一小时有60分钟，一分钟有60秒，3600个一秒可以组成一小时。这些你都知道。你甚至知道，地球是圆的，太阳不是宇宙的中心，银河系也不是宇宙唯一的星系。如此高深的知识，你都知道。可是你不知道，每一秒，每一分钟我都在想着你。我打开手机，打开ipad，第一眼看到的就是你。可你不知道。你上知天文，下知地理，通晓时空。可你不知道我对你的心。一年有31536000秒，这你一定知道。你不知道的是，每一秒我心里都有你的位置。你知道宇宙的中心不是太阳，却又万万不知道在我心里，宇宙的中心是你。你知道整个世界，可你不知道我对你的心意!!!", eventBody.Openid)
+		break
+	}
+}
 func Wechat() {
 	//一直更新一个access_token (不然会过期)
 	go GetAccessToken(false)
@@ -132,74 +198,10 @@ func Wechat() {
 	r.GET("/", func(context *gin.Context) {
 		response.OkWithMessage("Test", context)
 	})
-	r.GET("/qrcode", qrcodeHandler)
-	r.GET("/openid", openidHandler)
+	r.GET("/qrcode", QrcodeHandler)
+	r.GET("/openid", OpenidHandler)
 	r.GET("/message", TemplateMessageHandler)
-	r.POST("/", func(c *gin.Context) {
-		body, err1 := io.ReadAll(c.Request.Body)
-		if err1 != nil {
-			println("Body读取错误")
-		} else {
-			println("#####body####" + string(body) + "#####body####")
-		}
-		var eventBody EventBody
-		//myOpenId = eventBody.ToUserName
-		err := xml.Unmarshal(body, &eventBody)
-		if err != nil {
-			println("绑定错误")
-			return
-		} else {
-			println("绑定成功")
-		}
-		if eventBody.Openid == "" {
-			return
-		} //不是微信方发来的消息退出
-		switch eventBody.MsgType {
-		case "event":
-			switch eventBody.Event {
-			case "subscribe":
-				SendTemplateMessage(model.TemplateMessage{
-					WxOpenId:  eventBody.Openid,
-					Name:      "从数据库拿过来",
-					Msg:       "test",
-					NowStatus: "test状态",
-					HTTP:      "http://123.207.73.185:100?id=" + eventBody.Openid,
-				})
-				//Reply(c, "achobeta,启动!", eventBody.Openid)
-				//if eventBody.Ticket != "" { //登录事件
-				//	ch, exist := ticketToOpenId[eventBody.Ticket]
-				//	if !exist {
-				//		ticketToOpenId[eventBody.Ticket] = make(chan string)
-				//	}
-				//	ch <- eventBody.Openid
-				//}
-				break
-			case "unsubscribe":
-				break
-			case "SCAN":
-				SendTemplateMessage(model.TemplateMessage{
-					WxOpenId:  eventBody.Openid,
-					Name:      "从数据库拿",
-					Msg:       "test",
-					NowStatus: "test状态",
-					HTTP:      "http://123.207.73.185:100?id=" + eventBody.Openid,
-				})
-				//if eventBody.Ticket != "" { //登录事件
-				//	ch, exist := ticketToOpenId[eventBody.Ticket]
-				//	if !exist {
-				//		ticketToOpenId[eventBody.Ticket] = make(chan string)
-				//	}
-				//	ch <- eventBody.Openid
-				//}
-				break
-			}
-			break
-		case "text":
-			println("发送的是消息")
-			Reply(c, eventBody.Content+"当然是正确的,"+"你说的对，但是一小时有60分钟，一分钟有60秒，3600个一秒可以组成一小时。这些你都知道。你甚至知道，地球是圆的，太阳不是宇宙的中心，银河系也不是宇宙唯一的星系。如此高深的知识，你都知道。可是你不知道，每一秒，每一分钟我都在想着你。我打开手机，打开ipad，第一眼看到的就是你。可你不知道。你上知天文，下知地理，通晓时空。可你不知道我对你的心。一年有31536000秒，这你一定知道。你不知道的是，每一秒我心里都有你的位置。你知道宇宙的中心不是太阳，却又万万不知道在我心里，宇宙的中心是你。你知道整个世界，可你不知道我对你的心意!!!", eventBody.Openid)
-			break
-		}
-	})
+	r.POST("/")
 	err := r.Run(":80")
 	if err != nil {
 		fmt.Println("error")
@@ -232,6 +234,7 @@ func GetAccessToken(once bool) string {
 			println("获取Access_token 异常")
 		}
 		access_token = data["access_token"].(string)
+		global.AccessToken = data["access_token"].(string)
 		return access_token
 	}
 
@@ -246,8 +249,8 @@ func GetAccessToken(once bool) string {
 		if err != nil {
 			println("获取Access_token 异常")
 		}
-		access_token = data["access_token"].(string)
-		println("凭证是" + string(access_token))
+		global.AccessToken = data["access_token"].(string)
+		println("AccessToken 是" + global.AccessToken)
 		time.Sleep(7000 * time.Second)
 	}
 }
