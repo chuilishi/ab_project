@@ -126,7 +126,8 @@ func QrcodeHandler(c *gin.Context) {
 		"ticket": respjson["ticket"].(string),
 	})
 }
-func User(c *gin.Context) {
+
+func RootMessageHandler(c *gin.Context) {
 	body, err1 := io.ReadAll(c.Request.Body)
 	if err1 != nil {
 		println("Body读取错误")
@@ -195,18 +196,10 @@ func Wechat() {
 	//一直更新一个access_token (不然会过期)
 	go GetAccessToken(false)
 	r := gin.Default()
-	r.GET("/", func(context *gin.Context) {
-		response.OkWithMessage("Test", context)
-	})
 	r.GET("/qrcode", QrcodeHandler)
 	r.GET("/openid", OpenidHandler)
-	r.GET("/message", TemplateMessageHandler)
-	r.POST("/")
-	err := r.Run(":80")
-	if err != nil {
-		fmt.Println("error")
-		return
-	}
+	r.GET("/templateMessage", TemplateMessageHandler)
+	r.POST("/", RootMessageHandler)
 }
 
 // 回复消息

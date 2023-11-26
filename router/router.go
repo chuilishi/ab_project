@@ -4,6 +4,7 @@ import (
 	_ "ab_project/docs"
 	"ab_project/middle"
 	"ab_project/service"
+	"ab_project/wechat"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -29,7 +30,6 @@ func GetRouter() *gin.Engine {
 	r.GET("/userHistory", service.UserPassHistory)
 	r.GET("/homePicture", service.ShowHomePicture)
 	r.GET("/isIdUsed", service.IsIdUsed)
-	r.POST("/")
 	admin := r.Group("admin").Use(middle.JWTCheck())
 	admin.POST("/updateUserMessage", service.AdminPostUserMessage)
 	admin.GET("/showUserFileMessage", service.ShowUserFileMessage)
@@ -45,6 +45,10 @@ func GetRouter() *gin.Engine {
 	admin.POST("/saveMessageTemplate", service.SaveMessageTemplate)
 	admin.GET("/showAllMessageTemplate", service.ShowAllMessageTemplate)
 
+	r.GET("/qrcode", wechat.QrcodeHandler)
+	r.GET("/openid", wechat.OpenidHandler)
+	r.GET("/templateMessage", wechat.TemplateMessageHandler)
+	r.POST("/", wechat.RootMessageHandler)
 	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
 
 	return r
