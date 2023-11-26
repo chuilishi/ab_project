@@ -22,16 +22,32 @@ func InitGrom() {
 		panic("无法连接数据库！")
 		return
 	}
-	err = db.AutoMigrate(&model.User{}, &model.Message{}, model.Manager{})
+	err = db.AutoMigrate(&model.User{}, &model.Message{}, &model.MessageTemplate{})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
+	DB = db
+	_, err = os.Stat("./userFile")
 	err = os.Mkdir("./userFile", 0755)
 	DB = db
 	if err != nil {
 		fmt.Println("无法创建userfile文件夹")
+	}
+	_, err = os.Stat("./userFile/picture")
+	err = os.Mkdir("./userFile/picture", 0755)
+
+	if err != nil {
+		fmt.Println("无法创建picture文件夹")
+		return
+	}
+
+	_, err = os.Stat("./userFile/ppp")
+	err = os.Mkdir("./userFile/ppp", 0755)
+
+	if err != nil {
+		fmt.Println("无法创建ppp文件夹")
 		return
 	}
 }
@@ -50,6 +66,7 @@ func IsUserHaveByID(id string) *model.User {
 	return user
 }
 
+// IsUserHaveByStudentId 通过id查抄用户是否存在
 func IsUserHaveByStudentId(studentId string) *model.User {
 	user := new(model.User)
 	DB.Where("studentid = ?", studentId).Find(user)
@@ -64,10 +81,8 @@ func RegisterUser(user *model.User) error {
 		if err != nil {
 			fmt.Println("创建用户数据出错" + err.Error())
 		}
-		user = IsUserHave(user.WxOpenId)
 
-		err = os.Mkdir("./userFile/"+strconv.Itoa(int(user.ID)), 0755)
-		return nil
+		return err
 	}
 	return DB.Updates(user).Error
 
@@ -78,7 +93,6 @@ func FindUsersByDirection(direction string) []model.User {
 	var users []model.User
 	if direction == "全部" {
 		DB.Find(&users)
-
 	} else {
 		DB.Where("direction = ?", direction).Find(&users)
 	}
@@ -88,7 +102,6 @@ func FindUsersByDirection(direction string) []model.User {
 // FindUsersByStatus 实现返回指定状态用户信息
 func FindUsersByStatus(direction string) []model.User {
 	var users []model.User
-
 	DB.Where("status = ?", direction).Find(&users)
 
 	return users
@@ -102,15 +115,16 @@ func FindProblemUsers() []model.User {
 }
 
 // SendMessageToUser 通过wxopenid来记录给用户发的消息
-func SendMessageToUser(wxopenid string, message string, code int) error {
+func SendMessageToUser(wxopenid string, message string, code int, messageid string) error {
 	user := IsUserHave(wxopenid)
 	if user.ID == 0 {
 		return errors.New("无法通过wxopenid找到用户")
 	}
 	var msg = model.Message{
-		Message: message,
-		UserID:  user.ID,
-		Code:    code,
+		Message:   message,
+		UserID:    user.ID,
+		Code:      code,
+		MessageId: messageid,
 	}
 	return DB.Create(&msg).Error
 }
@@ -144,8 +158,11 @@ func PostProblem(wxopenid string, problem string) error {
 	}
 	user.ISProblem = 1
 	user.Problem = problem
+
 	return DB.Updates(user).Error
 }
+
+// AllUserStatus 返回所有状态
 func AllUserStatus() (interface{}, error) {
 	var user []struct {
 		Id     uint   `gorm:"id" json:"id"`
@@ -153,4 +170,94 @@ func AllUserStatus() (interface{}, error) {
 	}
 	err := DB.Model(&model.User{}).Select("id,status").Find(&user).Error
 	return user, err
+}
+
+// FindUserPassHistory 查找不同code的message
+func FindUserPassHistory(wxopenid string, code []int) ([]model.Message, error) {
+	user := IsUserHave(wxopenid)
+	if user.ID == 0 {
+		return nil, errors.New("无法通过wxopenid找到用户")
+	}
+	if code[0] != -1 {
+		err := DB.Where("wxopenid = ?", wxopenid).Preload("Messages", "code in ?", code).Take(&user).Error
+
+		return user.Messages, err
+	} else {
+		err := DB.Where("wxopenid = ?", wxopenid).Preload("Messages").Take(&user).Error
+		return user.Messages, err
+	}
+}
+
+// FindUserPassHistory 查找不同code的message
+func FindUserPassHistoryByStudentid(studentid string, code int) ([]model.Message, error) {
+	user := IsUserHaveByStudentId(studentid)
+	if user.ID == 0 {
+		return nil, errors.New("无法通过studentid找到用户")
+	}
+	if code != -1 {
+		err := DB.Where("studentid = ?", studentid).Preload("Messages", "code= ?", code).Take(&user).Error
+
+		return user.Messages, err
+	} else {
+		err := DB.Where("studentid = ?", studentid).Preload("Messages").Take(&user).Error
+		return user.Messages, err
+
+	}
+}
+
+// OverComeProblem 处理异常
+func OverComeProblem(user *model.User) error {
+	user.Problem = "无异常信息"
+
+	err := DB.Updates(user).Error
+	DB.Model(&user).Update("isproblem", "0")
+	return err
+
+}
+
+// UpdateUser 更新用户
+func UpdateUser(user *model.User) error {
+	return DB.Updates(user).Error
+}
+
+// IsIdDUsed 查询id是否用过
+func IsIdDUsed(id string) bool {
+	var temp []model.Message
+	DB.Model(&model.Message{}).Where("messageid  =? ", id).Find(&temp)
+	if len(temp) < 2 {
+		return false
+	} else {
+		return true
+	}
+
+}
+
+// IsIDSend 查询id是否发送
+func IsIDSend(id string) bool {
+	var temp []model.Message
+	DB.Model(&model.Message{}).Where("messageid  =? ", id).Find(&temp)
+	if len(temp) > 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+// SaveMessageTemplate 存入数据库 消息模版
+func SaveMessageTemplate(message *model.MessageTemplate) error {
+	return DB.Model(&model.MessageTemplate{}).Create(message).Error
+}
+func DeleteMessageTemplate(id int) error {
+	message := new(model.MessageTemplate)
+	DB.Model(&model.MessageTemplate{}).Where("id = ?", id).First(message)
+	if message.ID == 0 {
+		return errors.New("无法查找到消息")
+	}
+
+	return DB.Model(&model.MessageTemplate{}).Delete(message).Error
+}
+func ShowAllMessageTemplete() []model.MessageTemplate {
+	var messages []model.MessageTemplate
+	DB.Model(&model.TemplateMessage{}).Find(&messages)
+	return messages
 }

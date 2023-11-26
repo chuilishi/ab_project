@@ -18,7 +18,7 @@ username 邮箱
 password 授权码
 */
 
-func SendMail(to, username string) error {
+func SendMail(to, username, problem string) error {
 	// 1. 首先构建一个 Message 对象，也就是邮件对象
 	msg := mailer.NewMessage()
 	// 2. 填充 From，注意第一个字母要大写
@@ -32,7 +32,7 @@ func SendMail(to, username string) error {
 	// 6. 设置要发送的邮件正文
 	// 第一个参数是类型，第二个参数是内容
 	// 如果是 html，第一个参数则是 `text/html` 如果是文本则是"text/plain"
-	msg.SetBody("text/plain", "用户"+username+"有异常情况，需要你处理！！！")
+	msg.SetBody("text/plain", "用户"+username+"有异常情况，需要你处理！！！\n异常信息为"+problem)
 	// 7. 添加附件，注意，这个附件是完整路径
 	// msg.Attach("/Users/yufei/Downloads/1.jpg")
 	// 到此，邮件消息构建完毕

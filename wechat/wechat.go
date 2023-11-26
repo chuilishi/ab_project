@@ -1,7 +1,7 @@
 package wechat
 
 import (
-	"ab_project/middle"
+	//"ab_project/middle"
 	"ab_project/model"
 	"ab_project/service/response"
 	"encoding/json"
@@ -129,7 +129,6 @@ func Wechat() {
 	//一直更新一个access_token (不然会过期)
 	go GetAccessToken(false)
 	r := gin.Default()
-	r.Use(middle.Cors())
 	r.GET("/", func(context *gin.Context) {
 		response.OkWithMessage("Test", context)
 	})

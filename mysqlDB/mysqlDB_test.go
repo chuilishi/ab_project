@@ -11,7 +11,7 @@ func TestSendMessageToUser(t *testing.T) {
 }
 func TestFindUserMessage(t *testing.T) {
 	InitGrom()
-	messages, _ := FindUserMessage("3")
+	messages, _ := FindUserMessage("2654123")
 	for _, message := range messages {
 		fmt.Println(message)
 	}
@@ -29,4 +29,10 @@ func TestAllUserStatus(t *testing.T) {
 	InitGrom()
 	user, _ := AllUserStatus()
 	fmt.Println(user)
+}
+func TestFindUserPassHistory(t *testing.T) {
+	InitGrom()
+	message, err := FindUserPassHistory("2654123", 1)
+	fmt.Println(message, err)
+	return
 }

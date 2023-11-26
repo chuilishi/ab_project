@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"os"
 	"path"
+	"strings"
 )
 
 // UploadUserFileMessage 实现上传多个用户文件并存储用户文件信息
@@ -62,8 +63,16 @@ func UploadUserFileMessage(c *gin.Context) {
 		return
 	}
 	picture := pictures[0]
-
-	err = c.SaveUploadedFile(picture, "./userFile/"+ids+"/照片"+path.Ext(picture.Filename))
+	_, err = os.Stat("./userFile/picture/" + ids)
+	err = os.Mkdir("./userFile/picture/"+ids, 0755)
+	if err != nil {
+		//response.FailWithMessage("打开文件夹出错"+err.Error(), c)
+	}
+	picturee, err := os.ReadDir("./userFile/picture/" + ids + "/")
+	for _, file := range picturee {
+		os.Remove("./userFile/picture/" + ids + "/" + file.Name())
+	}
+	err = c.SaveUploadedFile(picture, "./userFile/picture/"+ids+"/"+ids+"照片"+path.Ext(picture.Filename))
 	if err != nil {
 		response.FailWithMessage("保存文件"+picture.Filename+"出错"+err.Error(), c)
 		return
@@ -85,12 +94,23 @@ func DeleteUserFileMessage(c *gin.Context) {
 		response.FailWithMessage("无法得到文件名", c)
 		return
 	}
-	err := os.Remove("./userFile/" + ids + "/" + filename)
-	if err != nil {
-		response.FailWithMessage("删除文件出错"+err.Error(), c)
+	if strings.Contains(filename, ids) {
+		err := os.Remove("./userFile/picture/" + ids + "/" + filename)
+		if err != nil {
+			response.FailWithMessage("删除照片出错"+err.Error(), c)
+		} else {
+			response.OkWithMessage("删除照片成功", c)
+		}
+
 	} else {
-		response.OkWithMessage("删除文件成功", c)
+		err := os.Remove("./userFile/" + ids + "/" + filename)
+		if err != nil {
+			response.FailWithMessage("删除文件出错"+err.Error(), c)
+		} else {
+			response.OkWithMessage("删除文件成功", c)
+		}
 	}
+
 }
 
 // ShowUserFileMessage 实现展示用户信息及其下载链接
@@ -115,20 +135,36 @@ func ShowUserFileMessage(c *gin.Context) {
 			return
 		}
 	}
-	userFilePath := make(map[string]string)
+
+	count := 0
+	var userAllFile []interface{}
+
+	userPicture := make(map[string]string)
+	picture, err := os.ReadDir("./userFile/picture/" + ids + "/")
+	for _, file := range picture {
+		userPicture["url"] = "http://123.207.73.185:8090/userFile/picture/" + ids + "/" + ids + "照片" + path.Ext(file.Name())
+		userPicture["name"] = ids + "照片" + path.Ext(file.Name())
+	}
+	userAllFile = append(userAllFile, userPicture)
+
 	files, err := os.ReadDir("./userFile/" + ids + "/")
 	for _, file := range files {
-		userFilePath[file.Name()] = "http://123.207.73.185:8090/userFile/" + ids + "/" + file.Name()
+		count++
+		userFilePath := make(map[string](string))
+		userFilePath["url"] = "http://123.207.73.185:8090/userFile/" + ids + "/" + file.Name()
+		userFilePath["name"] = file.Name()
+		userAllFile = append(userAllFile, userFilePath)
 	}
-	response.OkWithDetailed(userFilePath, "获取文件信息成功！", c)
+
+	response.OkWithDetailed(userAllFile, "获取文件信息成功！", c)
 }
 func DonLoadPictures(c *gin.Context) {
 
 	response.OkWithMessage("http://123.207.73.185:8090/userFile/ppp/picture", c)
 }
 
-// UploadPicture 上传首页图片
-func UploadPicture(c *gin.Context) {
+// UploadHomePicture 上传首页图片
+func UploadHomePicture(c *gin.Context) {
 	picture, err := c.FormFile("picture")
 	if err != nil {
 		response.FailWithMessage("得到文件失败"+err.Error(), c)
@@ -143,15 +179,14 @@ func UploadPicture(c *gin.Context) {
 		response.FailWithMessage("上传文件出错，请重新上传", c)
 		return
 	}
-	_, err = os.Stat("./userFile/ppp")
+	_, err = os.Stat("./userFile/ppp/")
 	if err != nil {
-		err = os.Mkdir("./userFile/ppp", 0755)
+		err = os.Mkdir("./userFile/ppp/", 0755)
 		if err != nil {
 			response.FailWithMessage("无法创建文件夹", c)
 			return
 		}
 	}
-
 	err = c.SaveUploadedFile(picture, "./userFile/ppp/picture"+path.Ext(picture.Filename))
 	if err != nil {
 		response.FailWithMessage("保存图片失败", c)
@@ -159,4 +194,18 @@ func UploadPicture(c *gin.Context) {
 	}
 	response.OkWithMessage("保存图片成功！", c)
 	return
+}
+
+// ShowHomePicture 展示用户照片
+func ShowHomePicture(c *gin.Context) {
+	pictures, err := os.ReadDir("./userFile/ppp/")
+	if err != nil {
+		response.FailWithMessage("无法得到文件夹", c)
+		return
+	}
+	for _, picture := range pictures {
+		response.OkWithDetailed("123.207.73.185:8090/userFile/ppp/"+picture.Name(), "获取文件成功", c)
+		return
+	}
+
 }
